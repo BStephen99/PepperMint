@@ -218,7 +218,10 @@ current_time = time.time()
 
 global_count = 0
 
-df1 = pd.read_csv('/home2/bstephenson/WASD/train_orig_gender_landmarks_speaker_emb.csv')
+#df1 = pd.read_csv('/home2/bstephenson/WASD/train_orig_gender_landmarks_speaker_emb.csv')
+df1 = pd.read_csv('/home2/bstephenson/GraVi-T/train_updated_with_laugh_backchannel.csv')
+#df1 = pd.read_csv('/home2/bstephenson/GraVi-T/val_updated_with_laugh_backchannel.csv')
+
 #df1 = pd.read_csv('/home2/bstephenson/WASD/WASD/csv/val_orig_gender_landmarks_speaker_emb_corrected.csv')
 #df1 = pd.read_csv('/home2/bstephenson/GraVi-T/annotations.csv')
 #df1 = df1[df1["set"]=="train"]
@@ -231,7 +234,9 @@ for g in glob.glob("/home2/bstephenson/active-speakers-context/allWASD/*.csv")[:
 #for g in glob.glob("/home2/bstephenson/active-speakers-context/val_forward/*.csv")[:]:
     clip = g.split("/")[-1].replace(".csv", "")
     print(clip)
-    filename = "/home2/bstephenson/GraVi-T/data/features/RESNET18-TSM-ALL2/WASDtrain/"+clip+".pkl"
+    #filename = "/home2/bstephenson/GraVi-T/data/features/RESNET18-TSM-ALL2/WASDtrain/"+clip+".pkl"
+    #filename = "/home2/bstephenson/GraVi-T/data/features/RESNET18-TSM-LAUGH/WASDval/"+clip+".pkl"
+    filename = "/home2/bstephenson/GraVi-T/data/features/RESNET18-TSM-LAUGH/WASDtrain/"+clip+".pkl"
     if os.path.exists(filename):
         file_mod_time = os.path.getmtime(filename)
         if current_time - file_mod_time < time_window:
@@ -252,6 +257,7 @@ for g in glob.glob("/home2/bstephenson/active-speakers-context/allWASD/*.csv")[:
     #df2 = pd.read_csv('/home2/bstephenson/active-speakers-context/oursOurs/'+clip+'.csv')
     #if not os.path.exists('/home2/bstephenson/active-speakers-context/allWASD/'+clip+'.csv'):
     if not os.path.exists('/home2/bstephenson/active-speakers-context/allWASD/'+clip+'.csv'):
+    #if not os.path.exists('/home2/bstephenson/active-speakers-context/allWASDval/'+clip+'.csv'):
         continue
     df2 = pd.read_csv('/home2/bstephenson/active-speakers-context/allWASD/'+clip+'.csv', header=None)
     #df2 = pd.read_csv('/home2/bstephenson/active-speakers-context/train_forward/'+clip+'.csv')

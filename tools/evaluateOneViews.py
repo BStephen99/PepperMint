@@ -8,13 +8,13 @@ from gravit.utils.parser import get_cfg
 from gravit.utils.logger import get_logger
 from gravit.models import build_model
 from gravit.datasets import GraphDataset
-#from gravit.utils.formatter_orig import get_formatting_data_dict, get_formatted_preds #WASD
-from gravit.utils.formatter_TwoViews import get_formatting_data_dict, get_formatted_preds #test
+from gravit.utils.formatter_orig import get_formatting_data_dict, get_formatted_preds #WASD
+#from gravit.utils.formatter_TwoViews import get_formatting_data_dict, get_formatted_preds #test
 #from gravit.utils.formatterMulticlass import get_formatting_data_dict, get_formatted_preds #byplay
 #from gravit.utils.eval_toolOrig import get_eval_score
 #from gravit.utils.eval_toolOrigyByplay import get_eval_score
-from gravit.utils.eval_toolOrigTwoViews import get_eval_score #test
-#from gravit.utils.eval_toolOrigWASD import get_eval_score #WASD
+#from gravit.utils.eval_toolOrigTwoViews import get_eval_score #test
+from gravit.utils.eval_toolOrigWASD import get_eval_score #WASD
 from gravit.utils.vs import avg_splits
 
 
@@ -26,6 +26,8 @@ def evaluate(cfg):
     # Input and output paths
     path_graphs = os.path.join(cfg['root_data'], f'graphs/{cfg["graph_name"]}')
     path_result = os.path.join(cfg['root_result'], f'{cfg["exp_name"]}')
+    test_sets = cfg["test_sets"]
+
     if cfg['split'] is not None:
         path_graphs = os.path.join(path_graphs, f'split{cfg["split"]}')
         path_result = os.path.join(path_result, f'split{cfg["split"]}')
@@ -39,7 +41,7 @@ def evaluate(cfg):
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu') #"cpu"
     model = build_model(cfg, device)
     print(path_graphs)
-    val_loader = DataLoader(GraphDataset(os.path.join(path_graphs, 'test'), True))
+    val_loader = DataLoader(GraphDataset(path_graphs, test_sets))
     #val_loader = DataLoader(GraphDataset(os.path.join(path_graphs, 'ours'), True))
     num_val_graphs = len(val_loader)
     print("num val graphs",num_val_graphs)
@@ -55,8 +57,11 @@ def evaluate(cfg):
 
     # Load the trained model
     logger.info('Loading the trained model')
-    state_dict = torch.load(os.path.join(path_result, args.modelNum), map_location=torch.device('cpu'))
-    #state_dict = torch.load(os.path.join(path_result, 'ckpt_last.pt'), map_location=torch.device('cpu'))
+ 
+    if args.modelNum != "None":
+        state_dict = torch.load(os.path.join(path_result, args.modelNum), map_location=torch.device('cpu'))
+    else:
+        state_dict = torch.load(os.path.join(path_result, 'ckpt_best.pt'), map_location=torch.device('cpu'))
     model.load_state_dict(state_dict)
     model.eval()
 

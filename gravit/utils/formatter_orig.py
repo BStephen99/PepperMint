@@ -38,6 +38,7 @@ def get_formatting_data_dict(cfg):
 
     root_data = cfg['root_data']
     dataset = cfg['dataset']
+    test_sets = cfg['test_sets']
     data_dict = {}
 
     if 'AVA' in cfg['eval_type']:
@@ -46,12 +47,14 @@ def get_formatting_data_dict(cfg):
         print("features", features)
         #print(os.path.join(root_data, f'features/{features}/WASDval/*'))
         #list_data_files = sorted(glob.glob(os.path.join(root_data, f'features/{features}/test/*.pkl')))
-        list_data_files = sorted(glob.glob(os.path.join(root_data, f'features/{features}/WASDval/*')))
-        #list_data_files = sorted(glob.glob(os.path.join(root_data, f'features/{features}/val_AVA/*.pkl')))
-        #list_data_files = sorted(glob.glob(os.path.join(root_data, f'features/{features}/val/*.pkl')))
-        #list_data_files = sorted(glob.glob(os.path.join(root_data, f'features/{features}/ours/*.pkl')))
-        #list_data_files = sorted(glob.glob(os.path.join(root_data, f'features/{features}/ours/220927*.pkl')))
-        #list_data_files = sorted(glob.glob(os.path.join(root_data, f'features/{features}/ours/220928*.pkl'))) + sorted(glob.glob(os.path.join(root_data, f'features/{features}/ours/220929*.pkl'))) + sorted(glob.glob(os.path.join(root_data, f'features/{features}/ours/220926*.pkl')))
+        #list_data_files = sorted(glob.glob(os.path.join(root_data, f'features/{features}/WASDval/*')))
+        list_data_files = []
+
+        for t in test_sets:
+            print(os.path.join(root_data, "features", features, t, '*.pkl'))
+            list_data_files += glob.glob(os.path.join(root_data, "features", features, t, '*.pkl'))
+        list_data_files = sorted(list_data_files)
+  
 
         for data_file in list_data_files:
             video_id = os.path.splitext(os.path.basename(data_file))[0]
@@ -121,8 +124,11 @@ def get_formatted_preds(cfg, logits, g, data_dict):
     preds = []
     if 'AVA' in eval_type:
         # Compute scores from the logits
-        scores_all = torch.sigmoid(logits.detach().cpu()).numpy()
-        #scores_all = torch.sigmoid(logits[:,1].detach().cpu()).numpy()
+        if cfg["multiclass"] == False:
+            scores_all = torch.sigmoid(logits.detach().cpu()).numpy()
+        else:
+            probs = torch.softmax(logits.detach().cpu(), dim=1)
+            scores_all = probs[:, cfg["classIndex"]].numpy()
 
         # Iterate over all the nodes and get the formatted predictions for evaluation
         for scores, global_id in zip(scores_all, g):

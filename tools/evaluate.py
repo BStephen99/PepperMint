@@ -23,6 +23,8 @@ def evaluate(cfg):
     # Input and output paths
     path_graphs = os.path.join(cfg['root_data'], f'graphs/{cfg["graph_name"]}')
     path_result = os.path.join(cfg['root_result'], f'{cfg["exp_name"]}')
+    test_sets = cfg["test_sets"]
+
     if cfg['split'] is not None:
         path_graphs = os.path.join(path_graphs, f'split{cfg["split"]}')
         path_result = os.path.join(path_result, f'split{cfg["split"]}')
@@ -36,7 +38,7 @@ def evaluate(cfg):
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu') #"cpu"
     model = build_model(cfg, device)
     print(path_graphs)
-    val_loader = DataLoader(GraphDataset(os.path.join(path_graphs, 'val'), True))
+    val_loader = DataLoader(GraphDataset(path_graphs, test_sets))
     #val_loader = DataLoader(GraphDataset(os.path.join(path_graphs, 'ours'), True))
     num_val_graphs = len(val_loader)
     print("num val graphs",num_val_graphs)
@@ -104,7 +106,8 @@ def evaluate(cfg):
             #logits = model(x, edge_index, edge_attr, c, ps, pers, gender=gender, gaze=gaze, landmarks=landmarks, numPredSpeakers = numPredSpeakers, speakerEmb=speakerEmb, bodyEmb=bodyEmb
             #logits = model(x, edge_index, edge_attr, c, ps, pers, gender=gender, gaze=gaze, landmarks=landmarks, numPredSpeakers = numPredSpeakers, speakerEmb=speakerEmb)
             #logits = model(x, edge_index, edge_attr, c, ps, gender=gender, gaze=gaze, landmarks=landmarks, speakerEmb=speakerEmb, numPredSpeakers=numPredSpeakers)
-            logits = model(x, edge_index, edge_attr, c, ps, pers=pers, gender=gender, landmarks=landmarks, speakerEmb=speakerEmb)
+            #logits = model(x, edge_index, edge_attr, c, ps, pers=pers, gender=gender, landmarks=landmarks, speakerEmb=speakerEmb)
+            logits = model(x, edge_index, edge_attr, xH=None, c=c, cH=None, ps=ps,pers=pers, gaze=None, gender=gender, landmarks=landmarks, landmarksH=None, speakerEmb=speakerEmb)
             #logits = model(x, edge_index, edge_attr, c, ps, pers)
             #print(logits)
 
