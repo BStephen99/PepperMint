@@ -6,3 +6,4 @@ from .spell2FeatsByplay import SPELLBYPLAY2FEATS
 from .spellByplayAudioOnly import SPELLBYPLAYAUDIOONLY
 from .spellVisOnlyByplay import SPELLVISONLYBYPLAY
 from .spellByplayGaze2view import SPELLBYPLAYGAZE2VIEWS
+from .spellLandmarks import SPELLLAND

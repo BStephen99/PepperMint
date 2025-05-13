@@ -8,14 +8,27 @@ from gravit.utils.parser import get_cfg
 from gravit.utils.logger import get_logger
 from gravit.models import build_model
 from gravit.datasets import GraphDataset
-from gravit.utils.formatter_orig import get_formatting_data_dict, get_formatted_preds #WASD
-#from gravit.utils.formatter_TwoViews import get_formatting_data_dict, get_formatted_preds #test
-#from gravit.utils.formatterMulticlass import get_formatting_data_dict, get_formatted_preds #byplay
-#from gravit.utils.eval_toolOrig import get_eval_score
-#from gravit.utils.eval_toolOrigyByplay import get_eval_score
-#from gravit.utils.eval_toolOrigTwoViews import get_eval_score #test
-from gravit.utils.eval_toolOrigWASD import get_eval_score #WASD
 from gravit.utils.vs import avg_splits
+
+from gravit.utils import eval_byplay as byplay
+from gravit.utils import eval_tool as pepper
+from gravit.utils import eval_WASD as wasd
+from gravit.utils import formatter_pepper
+from gravit.utils import formatter_WASD
+from gravit.utils import formatter_Multiclass
+
+
+def select_eval_tool(mode="pepper"):
+    if mode == "byplay":
+        return byplay.get_eval_score, formatter_Multiclass.get_formatting_data_dict, formatter_Multiclass.get_formatted_preds
+    elif mode == "wasd":
+        return wasd.get_eval_score, formatter_WASD.get_formatting_data_dict, formatter_WASD.get_formatted_preds
+    elif mode == "pepper":
+        return pepper.get_eval_score, formatter_pepper.get_formatting_data_dict, formatter_pepper.get_formatted_preds
+    else:
+        raise ValueError(f"Unknown mode: {mode}")
+
+
 
 
 def evaluate(cfg):
@@ -160,8 +173,11 @@ if __name__ == "__main__":
     parser.add_argument('--split',         type=int,   help='Split to evaluate')
     parser.add_argument('--all_splits',    action='store_true',   help='Evaluate all splits')
     parser.add_argument('--modelNum',      type=str,   help='Name of model')
+    parser.add_argument('--mode',          type=str,  default="pepper", help='Evaluation mode')
 
     args = parser.parse_args()
+
+    get_eval_score, get_formatting_data_dict, get_formatted_preds = select_eval_tool(mode=args.mode)
 
     path_result = os.path.join(args.root_result, args.exp_name)
     if not os.path.isdir(path_result):
