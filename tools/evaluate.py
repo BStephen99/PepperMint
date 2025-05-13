@@ -8,11 +8,27 @@ from gravit.utils.parser import get_cfg
 from gravit.utils.logger import get_logger
 from gravit.models import build_model
 from gravit.datasets import GraphDataset
-from gravit.utils.formatter_orig import get_formatting_data_dict, get_formatted_preds
-#from gravit.utils.eval_toolOrig import get_eval_score
-from gravit.utils.eval_toolOrigyByplay import get_eval_score
-#from gravit.utils.eval_toolOrigWASD import get_eval_score
 from gravit.utils.vs import avg_splits
+
+from gravit.utils import eval_byplay as byplay
+from gravit.utils import eval_tool as pepper
+from gravit.utils import eval_WASD as wasd
+from gravit.utils import formatter_pepper
+from gravit.utils import formatter_WASD
+from gravit.utils import formatter_Multiclass
+
+
+def select_eval_tool(mode="pepper"):
+    if mode == "byplay":
+        return byplay.get_eval_score, formatter_Multiclass.get_formatting_data_dict, formatter_Multiclass.get_formatted_preds
+    elif mode == "wasd":
+        return wasd.get_eval_score, formatter_WASD.get_formatting_data_dict, formatter_WASD.get_formatted_preds
+    elif mode == "pepper":
+        return pepper.get_eval_score, formatter_pepper.get_formatting_data_dict, formatter_pepper.get_formatted_preds
+    else:
+        raise ValueError(f"Unknown mode: {mode}")
+
+
 
 
 def evaluate(cfg):
@@ -37,9 +53,11 @@ def evaluate(cfg):
     logger.info('Preparing a model and data loaders')
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu') #"cpu"
     model = build_model(cfg, device)
-    print(path_graphs)
+    model_keys = set(model.state_dict().keys())
+
+
     val_loader = DataLoader(GraphDataset(path_graphs, test_sets))
-    #val_loader = DataLoader(GraphDataset(os.path.join(path_graphs, 'ours'), True))
+
     num_val_graphs = len(val_loader)
     print("num val graphs",num_val_graphs)
 
@@ -54,10 +72,14 @@ def evaluate(cfg):
 
     # Load the trained model
     logger.info('Loading the trained model')
-    state_dict = torch.load(os.path.join(path_result, 'ckpt_best.pt'), map_location=torch.device('cpu'))
-    #state_dict = torch.load(os.path.join(path_result, 'ckpt_last.pt'), map_location=torch.device('cpu'))
-    #state_dict = torch.load(os.path.join(path_result, 'ckpt_bestAVA.pt'), map_location=torch.device('cpu'))
-    model.load_state_dict(state_dict)
+ 
+    if args.modelNum != "None":
+        state_dict = torch.load(os.path.join(path_result, args.modelNum), map_location=torch.device('cpu'))
+    else:
+        state_dict = torch.load(os.path.join(path_result, 'ckpt_best.pt'), map_location=torch.device('cpu'))
+
+    filtered_state_dict = {k: v for k, v in state_dict.items() if k in model_keys}
+    model.load_state_dict(filtered_state_dict)
     model.eval()
 
     # Load the feature files to properly format the evaluation results
@@ -74,19 +96,27 @@ def evaluate(cfg):
             #print(data)
             g = data.g.tolist()
             x = data.x.to(device)
+            #xH = data.xH.to(device)
             edge_index = data.edge_index.to(device)
             edge_attr = data.edge_attr.to(device)
             c = None
             if cfg['use_spf']:
                 try:
                     c = data.c.to(device)
+                    #cH = data.ch.to(device)
                     ps = data.ps.to(device)
                     pers = data.perSpeak.to(device)
                     speakerEmb = data.speakerEmb.to(device)
                     #bodyEmb = data.bodyEmb.to(device)
                     gender = data.gender.to(device)
                     #print(gender)
-                    landmarks = data.landmarks.to(device)
+                    #landmarks = data.landmarks_back.to(device)
+                    if "landmarks" in data:
+                        landmarks = data.landmarks.to(device) 
+                    elif "landmarks_back" in data: 
+                        landmarks = data.landmarks_back.to(device)
+                        #landmarksHigh = data.landmarks_high.to(device)
+                    #landmarksHigh = data.landmarks_high.to(device)
                     #numPredSpeakers = data.numPredSpeakers.to(device)
                     #gaze = data.gaze.to(device)
                     #dinoEmb = data.dinoEmb.to(device)
@@ -95,7 +125,7 @@ def evaluate(cfg):
                     c = data.c.to(device)
                     ps = torch.tensor([0]*c.shape[0], dtype=torch.float32).unsqueeze(1).to(device)
                     pers = torch.tensor([0]*c.shape[0], dtype=torch.float32).unsqueeze(1).to(device)
-                    gender= torch.tensor([0]*c.shape[0], dtype=torch.long).unsqueeze(1).to(device)
+                    #gender= torch.tensor([0]*c.shape[0], dtype=torch.long).unsqueeze(1).to(device)
                     #print(gender)
                     gaze=None
                     landmarks=None
@@ -106,8 +136,16 @@ def evaluate(cfg):
             #logits = model(x, edge_index, edge_attr, c, ps, pers, gender=gender, gaze=gaze, landmarks=landmarks, numPredSpeakers = numPredSpeakers, speakerEmb=speakerEmb, bodyEmb=bodyEmb
             #logits = model(x, edge_index, edge_attr, c, ps, pers, gender=gender, gaze=gaze, landmarks=landmarks, numPredSpeakers = numPredSpeakers, speakerEmb=speakerEmb)
             #logits = model(x, edge_index, edge_attr, c, ps, gender=gender, gaze=gaze, landmarks=landmarks, speakerEmb=speakerEmb, numPredSpeakers=numPredSpeakers)
-            #logits = model(x, edge_index, edge_attr, c, ps, pers=pers, gender=gender, landmarks=landmarks, speakerEmb=speakerEmb)
-            logits = model(x, edge_index, edge_attr, xH=None, c=c, cH=None, ps=ps,pers=pers, gaze=None, gender=gender, landmarks=landmarks, landmarksH=None, speakerEmb=speakerEmb)
+            #logits = model(x, edge_index, edge_attr, c, ps, pers=None, gender=gender, landmarks=landmarks, speakerEmb=speakerEmb)
+            #logits = model(x, edge_index, edge_attr, c, ps,pers=pers, gender=gender, landmarks=landmarks, speakerEmb=speakerEmb)
+            #logits = model(x, xH, edge_index, edge_attr, c, cH, ps,pers=pers, gender=gender, landmarks=landmarks, landmarksH=landmarksHigh, speakerEmb=speakerEmb)
+            #logits = model(x, edge_index, edge_attr, xH=None, c=c, ps=ps,pers=pers, gender=gender, landmarks=None, landmarksH=None, speakerEmb=speakerEmb)
+            #logits = model(x, edge_index, edge_attr, xH=None, c=c, ps=ps,pers=pers, gender=gender, landmarks=landmarks, landmarksH=None, speakerEmb=speakerEmb)
+            #logits = model(x, edge_index, edge_attr, xH=None, c=c, ps=ps,pers=pers, gaze=gaze, gender=gender, landmarks=landmarks, landmarksH=None, speakerEmb=speakerEmb)
+            logits = model(x, edge_index, edge_attr, xH=None, c=c, ps=ps,pers=pers, gender=gender, gaze=None, landmarks=landmarks, landmarksH=None, speakerEmb=speakerEmb)
+            #logits = model(x, edge_index, edge_attr, xH=xH, c=c, cH=cH, ps=ps,pers=pers, gaze=gaze, gender=gender, landmarks=landmarks, landmarksH=landmarksHigh, speakerEmb=speakerEmb)
+            #logits = model(x, edge_index, edge_attr, xH=None, c=c, cH=None, ps=ps,pers=pers, gaze=None, gender=None, landmarks=None, landmarksH=None, speakerEmb=speakerEmb)
+            #logits = model(x, edge_index, edge_attr, xH=None, c=c, ps=ps,pers=pers, gender=None, landmarks=None, landmarksH=None, speakerEmb=speakerEmb)
             #logits = model(x, edge_index, edge_attr, c, ps, pers)
             #print(logits)
 
@@ -138,8 +176,12 @@ if __name__ == "__main__":
     parser.add_argument('--eval_type',     type=str,   help='Type of the evaluation', required=True)
     parser.add_argument('--split',         type=int,   help='Split to evaluate')
     parser.add_argument('--all_splits',    action='store_true',   help='Evaluate all splits')
+    parser.add_argument('--modelNum',      type=str,  default="None", help='Name of model')
+    parser.add_argument('--mode',          type=str,  default="pepper", help='Evaluation mode')
 
     args = parser.parse_args()
+
+    get_eval_score, get_formatting_data_dict, get_formatted_preds = select_eval_tool(mode=args.mode)
 
     path_result = os.path.join(args.root_result, args.exp_name)
     if not os.path.isdir(path_result):
