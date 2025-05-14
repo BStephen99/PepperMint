@@ -26,6 +26,9 @@ def train(cfg):
     # Input and output paths
     path_graphs = os.path.join(cfg['root_data'], f'graphs/{cfg["graph_name"]}')
     path_result = os.path.join(cfg['root_result'], f'{cfg["exp_name"]}')
+    training_sets = cfg["training_sets"]
+    test_sets = cfg["test_sets"]
+
     if cfg['split'] is not None:
         path_graphs = os.path.join(path_graphs, f'split{cfg["split"]}')
         path_result = os.path.join(path_result, f'split{cfg["split"]}')
@@ -57,15 +60,13 @@ def train(cfg):
     
 
 
-    train_loader1 = DataLoader(GraphDataset(os.path.join(path_graphs, 'train')), batch_size=cfg['batch_size'], shuffle=True)
+    train_loader1 = DataLoader(GraphDataset(path_graphs, training_sets=training_sets), batch_size=cfg['batch_size'], shuffle=True)
     #train_loader1 = DataLoader(GraphDataset("./data/graphs/RESNET18-TSM-AUG4_csi_90.0_0.9/train"), batch_size=cfg['batch_size'], shuffle=True)
     #train_loader2 = DataLoader(GraphDataset(os.path.join(path_graphs, 'ours')), batch_size=cfg['batch_size'], shuffle=True)
     #combined_train = DataLoader(train_loader1.dataset + train_loader2.dataset, batch_size=2)
     combined_train = train_loader1
 
-    val_loader = DataLoader(GraphDataset(os.path.join(path_graphs, 'test'), True))
-    #val_loader = DataLoader(GraphDataset(os.path.join(path_graphs, 'ours'), True))
-    #val_loader = train_loader2
+    val_loader = DataLoader(GraphDataset(path_graphs, test_sets=test_sets))
 
     # Prepare the experiment
     loss_func = get_loss_func(cfg) 
@@ -91,6 +92,7 @@ def train(cfg):
 
             #train ASD or addressee estimation
             data.y[data.y == 2] = 1 #using
+            data.y[data.y == 3] = 1
             #data.y[data.y == 2] = 0
             #x, y = data.x.to(device), data.y.to(device) #using
             x, y = data.x.to(device), data.y.squeeze(dim=1).to(device)

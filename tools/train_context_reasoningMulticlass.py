@@ -65,13 +65,11 @@ def train(cfg):
     combined_train = train_loader1
 
     val_loader = DataLoader(GraphDataset(path_graphs, test_sets=test_sets))
-    #val_loader = DataLoader(GraphDataset(os.path.join(path_graphs, 'ours'), True))
-    #val_loader = train_loader2
+
 
     # Prepare the experiment
     loss_func = get_loss_func(cfg) 
     print(loss_func)
-    #genderLoss = CrossEntropyLoss()
     loss_func_val = get_loss_func(cfg, 'val')
     optimizer = optim.Adam(model.parameters(), lr=cfg['lr'], weight_decay=cfg['wd'])
     scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=cfg['sch_param'])

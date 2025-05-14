@@ -20,7 +20,6 @@ from scipy import stats
 from scipy.stats import rankdata
 
 def compute_average_precision(precision, recall):
-  print("*******************using this file")
   """Compute Average Precision according to the definition in VOCdevkit.
   Precision is modified to ensure that it does not decrease as recall
   decrease.
@@ -88,9 +87,6 @@ def load_csv(filename, column_names):
   #df = df[df["byplay"] != 0]
   df = df[df["set"]=="test"]
   print(df.shape)
-  #df = df[df["entity_box_x2"] != 0]
-  #df = df[df["landmarks"] != "0"]
-  #df = df[(df["entity_box_y2_back"] != 0) | (df["landmarks_back"] != "0")]
 
 
   # Creates a unique id from frame timestamp and entity id.f
@@ -180,10 +176,7 @@ def merge_groundtruth_and_predictions(df_groundtruth, df_predictions):
 
 def get_all_positives(df_merged):
   """Counts all positive examples in the groundtruth dataset."""
-  #return df_merged[df_merged["label_groundtruth"] ==
-    #               "SPEAKING_AUDIBLE"]["uid"].count()
-  #return df_merged[df_merged["label_groundtruth"] == "SPEAKING_AUDIBLE"]["uid"].count() + df_merged[df_merged["label_groundtruth"] == "SPEAKING_NOT_AUDIBLE"]["uid"].count()
-  #return df_merged[df_merged["label_groundtruth"] == "speaking"]["uid"].count() + df_merged[df_merged["label_groundtruth"] == "byplay"]["uid"].count()
+  #"SPEAKING_AUDIBLE", "SPEAKING_NOT_AUDIBLE"
   return df_merged[df_merged["label_groundtruth"] == "speaking_to_pepper"]["uid"].count() + df_merged[df_merged["label_groundtruth"] == "speaking_to_human"]["uid"].count() + df_merged[df_merged["label_groundtruth"] == "speaking"]["uid"].count() + df_merged[df_merged["label_groundtruth"] == "byplay"]["uid"].count()
 
 
@@ -215,9 +208,6 @@ def calculate_precision_recall(df_merged):
   # and including that row over all positives in the groundtruth dataset.
   df_merged["recall"] = df_merged["tp"] / all_positives
   print("saving results")
-  #df_merged.to_csv("/home2/bstephenson/GraVi-T/results/results_WASD_processed_with_AVA.csv")
-  #df_merged.to_csv("/home2/bstephenson/GraVi-T/results/results_WASD.csv")
-  #df_merged.to_csv("/home2/bstephenson/GraVi-T/results/results_feature.csv")
   df_merged.to_csv("/home2/bstephenson/GraVi-T/results/results_feature.csv")
 
   return np.array(df_merged["precision"]), np.array(df_merged["recall"])
@@ -462,11 +452,7 @@ def get_eval_score(cfg, preds):
     str_score = ""
     if eval_type == 'AVA_ASD':
         #groundtruth = os.path.join(path_annts, 'ava_activespeaker_val_v1.0.csv')
-        #groundtruth = "/home2/bstephenson/WASD/WASD/csv/val_orig.csv"
-        #groundtruth = "/home2/bstephenson/WASD/WASD/csv/val_orig_gender_landmarks_speaker_emb_corrected.csv"
-        #groundtruth = '/home2/bstephenson/ASDNet/ava220927.csv'
-        #groundtruth = "/home2/bstephenson/GraVi-T/avaAllaugmentedGaze.csv"
-        groundtruth = "/home2/bstephenson/GraVi-T/annotations.csv"
+        groundtruth =  cfg["csv_path"] 
         score = run_evaluation_asd(preds, groundtruth)
         str_score = f'{score*100:.2f}%'
     elif eval_type == 'AVA_AL':

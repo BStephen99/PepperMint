@@ -7,3 +7,4 @@ from .spellByplayAudioOnly import SPELLBYPLAYAUDIOONLY
 from .spellVisOnlyByplay import SPELLVISONLYBYPLAY
 from .spellByplayGaze2view import SPELLBYPLAYGAZE2VIEWS
 from .spellLandmarks import SPELLLAND
+from .spellSpeakEmbGend import SPELLSPEAKEMB

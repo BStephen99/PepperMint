@@ -11,7 +11,8 @@ import shutil
 #expName = "byplay2Feats"
 #expName = "byplayAudioOnly"
 #expName = "byplayVisualOnly"
-expName = "byplayGaze2views"
+#expName = "byplayGaze2views"
+expName = "speakEmb"
 
 
 """
@@ -73,9 +74,11 @@ evaluate_multiple_checkpoints()
 def run_training_multiple_times():
     command = [
         "python3", 
-        "tools/train_context_reasoningMulticlass.py", 
+        "tools/train_context_reasoning.py", 
+        #"tools/train_context_reasoningMulticlass.py",
         "--cfg", 
-        "configs/active-speaker-detection/ava_active-speaker/SPELL_defaultByplay.yaml"
+        #"configs/active-speaker-detection/ava_active-speaker/SPELL_defaultByplay.yaml"
+        "configs/active-speaker-detection/ava_active-speaker/SPELL_SpeakEmb.yaml"
     ]
     ckpt_path = "/home2/bstephenson/GraVi-T/results/"+expName+"/ckpt_best.pt"
     results_dir = "/home2/bstephenson/GraVi-T/results/"+expName
@@ -98,12 +101,13 @@ def run_training_multiple_times():
 
 
 
-run_training_multiple_times()
+#run_training_multiple_times()
 
 
 
 def evaluate_multiple_checkpoints():
-    base_cmd = "python3 tools/evaluateOneViewsByplay.py --exp_name "+expName+" --eval_type AVA_ASD --modelNum"
+    #base_cmd = "python3 tools/evaluateOneViewsByplay.py --exp_name "+expName+" --eval_type AVA_ASD --modelNum"
+    base_cmd = "python3 tools/evaluate.py --exp_name "+expName+" --eval_type AVA_ASD --mode pepper --modelNum"
     results_dir = "/home2/bstephenson/GraVi-T/results"
     output_file = os.path.join(results_dir, "results_feature.csv")
 
