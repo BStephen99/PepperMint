@@ -12,7 +12,8 @@ import shutil
 #expName = "byplayAudioOnly"
 #expName = "byplayVisualOnly"
 #expName = "byplayGaze2views"
-expName = "speakEmb"
+#expName = "speakEmb"
+expName = "forward"
 
 
 """
@@ -78,7 +79,8 @@ def run_training_multiple_times():
         #"tools/train_context_reasoningMulticlass.py",
         "--cfg", 
         #"configs/active-speaker-detection/ava_active-speaker/SPELL_defaultByplay.yaml"
-        "configs/active-speaker-detection/ava_active-speaker/SPELL_SpeakEmb.yaml"
+        #"configs/active-speaker-detection/ava_active-speaker/SPELL_SpeakEmb.yaml"
+        "configs/active-speaker-detection/ava_active-speaker/SPELL_forward.yaml"
     ]
     ckpt_path = "/home2/bstephenson/GraVi-T/results/"+expName+"/ckpt_best.pt"
     results_dir = "/home2/bstephenson/GraVi-T/results/"+expName
@@ -101,7 +103,7 @@ def run_training_multiple_times():
 
 
 
-#run_training_multiple_times()
+run_training_multiple_times()
 
 
 

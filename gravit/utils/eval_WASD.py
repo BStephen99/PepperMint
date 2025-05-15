@@ -193,7 +193,8 @@ def calculate_precision_recall(df_merged, positiveLabels):
   df_merged["is_tp"] = np.where(
   #(df_merged["label_groundtruth"].isin(["SPEAKING_NOT_AUDIBLE", "SPEAKING_AUDIBLE"])) &
   #(df_merged["label_prediction"] == "SPEAKING_AUDIBLE"), 1, 0)
-  (df_merged["label_groundtruth"].isin(["SPEAKING_NOT_AUDIBLE", "SPEAKING_AUDIBLE", "Speaking", "Laughing", "Backchannel", "byplay", "speaking"])) &
+  #(df_merged["label_groundtruth"].isin(["SPEAKING_NOT_AUDIBLE", "SPEAKING_AUDIBLE", "Speaking", "Laughing", "Backchannel", "byplay", "speaking"])) &
+  (df_merged["label_groundtruth"].isin(positiveLabels)) &
   (df_merged["label_prediction"] == "SPEAKING_AUDIBLE"), 1, 0)
   #(df_merged["label_groundtruth"].isin(["byplay", "speaking"])) &
   #(df_merged["label_prediction"] == "SPEAKING_AUDIBLE"), 1, 0)

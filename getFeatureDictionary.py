@@ -236,7 +236,7 @@ for g in glob.glob("/home2/bstephenson/active-speakers-context/allWASD/*.csv")[:
     print(clip)
     #filename = "/home2/bstephenson/GraVi-T/data/features/RESNET18-TSM-ALL2/WASDtrain/"+clip+".pkl"
     #filename = "/home2/bstephenson/GraVi-T/data/features/RESNET18-TSM-LAUGH/WASDval/"+clip+".pkl"
-    filename = "/home2/bstephenson/GraVi-T/data/features/RESNET18-TSM-LAUGH/WASDtrain/"+clip+".pkl"
+    filename = "/home2/bstephenson/GraVi-T/data/features/RESNET18-TSM-ALL2/WASDtrainLaugh/"+clip+".pkl"
     if os.path.exists(filename):
         file_mod_time = os.path.getmtime(filename)
         if current_time - file_mod_time < time_window:

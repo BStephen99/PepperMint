@@ -196,6 +196,7 @@ def val(val_loader, use_spf, model, device, loss_func):
     with torch.no_grad():
         for data in val_loader:
             data.y[data.y == 2] = 1
+            data.y[data.y == 3] = 1
             #data.y[data.y == 2] = 0
             #x, y = data.x.to(device), data.y.to(device)
             x, y = data.x.to(device), data.y.squeeze(dim=1).to(device)

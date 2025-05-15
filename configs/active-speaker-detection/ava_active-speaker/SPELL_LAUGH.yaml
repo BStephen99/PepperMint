@@ -1,25 +1,26 @@
 exp_name: LaughWASD
 model_name: SPELL
-graph_name: RESNET18-TSM-LAUGH_csi_30.0_0.9
-training_sets: ["WASDtrain"]
-test_sets: ["WASDval"]
-loss_name: ce
+graph_name: RESNET18-TSM-ALL2_csi_30.0_0.9
+training_sets: ["WASDtrainLaugh"]
+test_sets: ["WASDvalLaugh"]
+loss_name: bce_logit #ce
 use_spf: True
 use_ref: False
 num_modality: 2
 channel1: 64
 channel2: 16
 proj_dim: 64
-final_dim: 4
+final_dim: 1
 num_att_heads: 0
 dropout: 0.3
 lr: 0.0005
 wd: 0
 batch_size: 16
 sch_param: 10
-num_epoch: 70
+num_epoch: 100
 csv_path: "/home2/bstephenson/GraVi-T/val_updated_with_laugh_backchannel.csv"
-multiclass: True
-classIndex: 1 #Evaluate one class for multiclass model
+multiclass: False
+classIndex: 2 #Evaluate one class for multiclass model
 positiveLabels: ["Speaking", "Laughing", "Backchannel"]
+#positiveLabels: ["Laughing"]
 
