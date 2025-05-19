@@ -13,7 +13,12 @@ import shutil
 #expName = "byplayVisualOnly"
 #expName = "byplayGaze2views"
 #expName = "speakEmb"
-expName = "forward"
+#expName = "speakEmbWithWASD"
+#expName = "forward"
+#expName = "landmarks"
+#expName = "landmarksWASD"
+#expName = "gaze"
+expName = "basic"
 
 
 """
@@ -76,11 +81,15 @@ def run_training_multiple_times():
     command = [
         "python3", 
         "tools/train_context_reasoning.py", 
+        #"tools/train_context_reasoning_gaze.py", 
         #"tools/train_context_reasoningMulticlass.py",
         "--cfg", 
         #"configs/active-speaker-detection/ava_active-speaker/SPELL_defaultByplay.yaml"
         #"configs/active-speaker-detection/ava_active-speaker/SPELL_SpeakEmb.yaml"
-        "configs/active-speaker-detection/ava_active-speaker/SPELL_forward.yaml"
+        #"configs/active-speaker-detection/ava_active-speaker/SPELL_Landmarks.yaml"
+        #"configs/active-speaker-detection/ava_active-speaker/SPELL_Gaze.yaml"
+        "configs/active-speaker-detection/ava_active-speaker/SPELL_default.yaml"
+        #"configs/active-speaker-detection/ava_active-speaker/SPELL_forward.yaml"
     ]
     ckpt_path = "/home2/bstephenson/GraVi-T/results/"+expName+"/ckpt_best.pt"
     results_dir = "/home2/bstephenson/GraVi-T/results/"+expName

@@ -1,8 +1,8 @@
 exp_name: LaughWASD
-model_name: SPELL
+model_name: SPELLSPEAKEMB
 graph_name: RESNET18-TSM-ALL2_csi_30.0_0.9
-training_sets: ["WASDtrainLaugh"]
-test_sets: ["WASDvalLaugh"]
+training_sets: ["WASDtrainLaugh", "WASDvalLaugh", "train"]
+test_sets: ["test"]
 loss_name: bce_logit #ce
 use_spf: True
 use_ref: False
@@ -17,10 +17,15 @@ lr: 0.0005
 wd: 0
 batch_size: 16
 sch_param: 10
-num_epoch: 100
-csv_path: "/home2/bstephenson/GraVi-T/val_updated_with_laugh_backchannel.csv"
+num_epoch: 70
+#csv_path: "/home2/bstephenson/GraVi-T/val_updated_with_laugh_backchannel.csv"
+csv_path: "/home2/bstephenson/GraVi-T/annotations.csv"
 multiclass: False
 classIndex: 2 #Evaluate one class for multiclass model
-positiveLabels: ["Speaking", "Laughing", "Backchannel"]
+#positiveLabels: ["Speaking", "Laughing", "Backchannel"]
+positiveLabels: ["speaking_to_pepper", "speaking_to_human"]
 #positiveLabels: ["Laughing"]
+pca: True
+genderClass: False
+
 

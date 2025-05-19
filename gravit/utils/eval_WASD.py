@@ -80,16 +80,10 @@ def load_csv(filename, column_names):
   print(filename)
   #df = pd.read_csv(filename, header=None, names=column_names)
   df = pd.read_csv(filename, usecols=column_names)
-  #print(df.columns)
   df = df[~df["entity_id"].str.contains("pepper")]
-  #df = df[df["entity_box_x2"] != 0]
-  #df = df[df["landmarks"] != "0"]
-  #df = df[(df["entity_box_y2"] != 0) | (df["landmarks"] != "0")]
-
 
   # Creates a unique id from frame timestamp and entity id.f
   df["uid"] = (df["frame_timestamp"].round(2).map(str) + ":" + df["entity_id"])
-  #print(df["uid"].head(3))
   return df
 
 
@@ -187,17 +181,10 @@ def calculate_precision_recall(df_merged, positiveLabels):
 
   # Populates each row with 1 if this row is a true positive
   # (at its score level).
-  #df_merged["is_tp"] = np.where(
-    #  (df_merged["label_groundtruth"] == "SPEAKING_AUDIBLE") &
-    #  (df_merged["label_prediction"] == "SPEAKING_AUDIBLE"), 1, 0)
   df_merged["is_tp"] = np.where(
-  #(df_merged["label_groundtruth"].isin(["SPEAKING_NOT_AUDIBLE", "SPEAKING_AUDIBLE"])) &
-  #(df_merged["label_prediction"] == "SPEAKING_AUDIBLE"), 1, 0)
-  #(df_merged["label_groundtruth"].isin(["SPEAKING_NOT_AUDIBLE", "SPEAKING_AUDIBLE", "Speaking", "Laughing", "Backchannel", "byplay", "speaking"])) &
   (df_merged["label_groundtruth"].isin(positiveLabels)) &
   (df_merged["label_prediction"] == "SPEAKING_AUDIBLE"), 1, 0)
-  #(df_merged["label_groundtruth"].isin(["byplay", "speaking"])) &
-  #(df_merged["label_prediction"] == "SPEAKING_AUDIBLE"), 1, 0)
+
 
   # Counts true positives up to and including that row.
   df_merged["tp"] = df_merged["is_tp"].cumsum()
@@ -222,8 +209,6 @@ def run_evaluation_asd(predictions, groundtruth, positiveLabels):
       "entity_box_x2", "entity_box_y2", "label", "entity_id"
   ]
   df = pd.read_csv(groundtruth)
-  #print(df.columns)
-  #df_groundtruth = load_csv(groundtruth, column_names=column_names+["landmarks"])
   df_groundtruth = load_csv(groundtruth, column_names=column_names)
   df_predictions = pd.DataFrame(predictions, columns=column_names+["score"])
   #df_predictions.to_csv("predictions.csv")
@@ -454,7 +439,6 @@ def get_eval_score(cfg, preds):
     if eval_type == 'AVA_ASD':
         groundtruth = cfg["csv_path"]
         #groundtruth = "/home2/bstephenson/WASD/WASD/csv/val_orig_gender_landmarks_speaker_emb_corrected.csv"
-        #groundtruth = "/home2/bstephenson/GraVi-T/annotations.csv"
         print(groundtruth)
         score = run_evaluation_asd(preds, groundtruth, cfg["positiveLabels"])
         str_score = f'{score*100:.2f}%'

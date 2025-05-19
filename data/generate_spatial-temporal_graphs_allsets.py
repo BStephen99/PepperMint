@@ -189,8 +189,10 @@ def generate_graph(data_file, args, path_graphs, sp):
                         #print(entity['gender'])
                         gender.append(MaleFemaleOrPepper(entity['gender']))
                         
-                        
-                        landmarks.append(processLandmarks(entity['landmarks']))
+                        if "landmarks" in entity:
+                            landmarks.append(processLandmarks(entity['landmarks']))
+                        elif "landmarks_back" in entity:
+                            landmarks.append(processLandmarks(entity['landmarks_back']))
                         #speakerEmb.append(processSpeakerEmb(entity['speakerEmb']))
                         speakerEmb.append(entity['speakerEmb'])
         
@@ -236,8 +238,8 @@ def generate_graph(data_file, args, path_graphs, sp):
                       perSpeak = torch.tensor(np.array(personSpeaking, dtype=np.float32), dtype=torch.float32),
                       g = torch.tensor(global_id, dtype=torch.long),
                       gender = torch.tensor(np.array(gender, dtype=np.float32), dtype=torch.long), #not in all
-                      landmarks = torch.tensor(np.array(landmarks_back, dtype=np.float32), dtype=torch.float32), #not in all
-                      gaze = torch.tensor(np.array(gaze, dtype=np.float32), dtype=torch.float32), #not in all
+                      landmarks = torch.tensor(np.array(landmarks, dtype=np.float32), dtype=torch.float32), #not in all
+                      #gaze = torch.tensor(np.array(gaze, dtype=np.float32), dtype=torch.float32), #not in all
                       #numPredSpeakers = torch.tensor(np.array(numPredSpeakers, dtype=np.float32), dtype=torch.float32),
                       edge_index = torch.tensor(np.array([node_source, node_target], dtype=np.int64), dtype=torch.long),
                       edge_attr = torch.tensor(edge_attr, dtype=torch.float32),
@@ -281,7 +283,7 @@ if __name__ == "__main__":
     #for sp in ['train', 'test']:
     #for sp in ['test']:
     #for sp in ["AVAtrain", "WASDtrain"]:
-    for sp in ["WASDtrainLaugh"]:
+    for sp in ["WASDtrainLaugh", "WASDvalLaugh", "train", "test"]:
         path_graphs = os.path.join(args.root_data, f'graphs/{args.features}_{args.ec_mode}_{args.time_span}_{args.tau}/{sp}')
         os.makedirs(path_graphs, exist_ok=True)
 

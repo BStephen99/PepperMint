@@ -56,9 +56,6 @@ class SPELLLAND(Module):
             self.layer_speakerEmb = Linear(-1, 10)
             self.layer_gender = Embedding(3, 5)
             self.speakerNorm = BatchNorm(20)
-            #self.coorPred = coorPred
-            #self.LaughClassifier = laugh
-            self.laughNorm = BatchNorm(128)
             self.visualNorm = BatchNorm(cfg['proj_dim'])
             self.audioNorm = BatchNorm(cfg['proj_dim'])
 

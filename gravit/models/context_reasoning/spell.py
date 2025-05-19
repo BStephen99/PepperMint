@@ -6,101 +6,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
-class GenderClassifier(nn.Module):
-    def __init__(self, input_dim=192, hidden_dim=128, num_classes=4):
-        super(GenderClassifier, self).__init__()
-        self.net = nn.Sequential(
-            nn.Linear(input_dim, hidden_dim),
-            nn.ReLU(),
-            nn.Dropout(0.4),
-            nn.Linear(hidden_dim, 64),
-            nn.ReLU(),
-            nn.Linear(64, num_classes)
-        )
-
-    def forward(self, x):
-        return self.net(x)
-
-genClass = GenderClassifier()
-genClass.load_state_dict(torch.load('gender_model.pt'))
-genClass.eval()
-genClass.to("cuda")
-
-
-def nose_normalization(tensor, xnose_index=4, ynose_index=5):
-    """
-    Normalize body landmarks relative to the nose, preserving original zeros.
-    
-    Args:
-        tensor (torch.Tensor): Input tensor of shape (batch_size, 34).
-        xnose_index (int): Index of the x-coordinate of the nose.
-        ynose_index (int): Index of the y-coordinate of the nose.
-    
-    Returns:
-        torch.Tensor: Normalized tensor of the same shape.
-    """
-    # Create a mask for original zeros
-    zero_mask = (tensor == 0)
-    
-    # Extract xnose and ynose coordinates (batch_size,)
-    xnose = tensor[:, xnose_index]
-    ynose = tensor[:, ynose_index]
-    
-    # Reshape xnose and ynose to (batch_size, 1) for broadcasting
-    xnose = xnose.unsqueeze(1)
-    ynose = ynose.unsqueeze(1)
-    
-    # Subtract xnose from all x coordinates and ynose from all y coordinates
-    # x coordinates are at even indices (0, 2, 4, ...), y coordinates at odd indices (1, 3, 5, ...)
-    tensor[:, 0::2] -= xnose  # Normalize x coordinates
-    tensor[:, 1::2] -= ynose  # Normalize y coordinates
-    
-    # Restore original zeros using the mask
-    tensor[zero_mask] = 0
-    
-    return tensor
-
-
-class SpeakerPredictor(torch.nn.Module):
-    def __init__(self, feature_dim=1024):
-        super(SpeakerPredictor, self).__init__()
-        self.fc1 = torch.nn.Linear(feature_dim + 4, 512)
-        self.fc2 = torch.nn.Linear(512, 256)
-        self.fc3 = torch.nn.Linear(256, 4)  # Output speaker bbox coordinates
-        self.relu = torch.nn.ReLU()
-
-    def forward(self, listener_feature, listener_box):
-        x = torch.cat((listener_feature, listener_box), dim=-1)
-        x = self.relu(self.fc1(x))
-        x = self.relu(self.fc2(x))
-        x = self.fc3(x)
-        return x
-
-coorPred = SpeakerPredictor()
-coorPred.load_state_dict(torch.load("speaker_coord_model.pth"))
-coorPred.eval()
-
-
-class LaughClassifier(nn.Module):
-    def __init__(self, input_size, hidden_size, output_size, dropout_prob=0.0):
-        super(LaughClassifier, self).__init__()
-        self.fc1 = nn.Linear(input_size, hidden_size)
-        self.relu = nn.ReLU()
-        self.dropout = nn.Dropout(dropout_prob)  # Add dropout layer
-        self.fc2 = nn.Linear(hidden_size, output_size)
-        self.sigmoid = nn.Sigmoid()
-
-    def forward(self, x):
-        out = self.fc1(x)
-        out2 = self.relu(out)
-        out = self.dropout(out2)  # Apply dropout
-        out = self.fc2(out)
-        out = self.sigmoid(out)
-        return out, out2
-
-laugh = LaughClassifier(512,128,1)
-laugh.load_state_dict(torch.load("laugh_weights.pth"))
-laugh.eval()
 
 
 
@@ -149,19 +54,6 @@ class SPELL(Module):
 
         if self.use_spf:
             self.layer_spf = Linear(-1, cfg['proj_dim']) # projection layer for spatial features
-            #self.layer_spf2 = Linear(-1, cfg['proj_dim'])
-            self.layer_gaze = Linear(-1, cfg['proj_dim'])
-            self.layer_pose = Linear(-1, cfg['proj_dim'])
-            #self.poseNorm = BatchNorm(cfg['proj_dim'])
-            #self.layer_ps = Linear(-1, cfg['proj_dim'])
-            self.layer_speakerEmb = Linear(-1, 10)
-            self.layer_gender = Embedding(3, 5)
-            self.speakerNorm = BatchNorm(192)
-            self.coorPred = coorPred
-            self.LaughClassifier = laugh
-            self.laughNorm = BatchNorm(128)
-            #self.dropoutEmb = Dropout(dropout)
-            #self.layer_identity = Linear(-1, channels[0])
             self.visualNorm = BatchNorm(cfg['proj_dim'])
             self.audioNorm = BatchNorm(cfg['proj_dim'])
 
@@ -197,92 +89,28 @@ class SPELL(Module):
             self.layer_ref3 = Refinement(final_dim)
 
 
-    #def forward(self, x, edge_index, edge_attr, c=None):
     def forward(self, x, edge_index, edge_attr, xH=None, c=None, cH=None, ps=None, pers=None, gender=None, gaze=None, landmarks=None, landmarksH=None, dinoEmb=None,speakerEmb=None, numPredSpeakers=None):
         feature_dim = x.shape[1]
-        #print(ps)
-        #print(pers)
-        #print(c)
-        #print(gaze)
-        #print(feature_dim)
-        #print(speakerEmb.shape)
-        #print(gender)
-        #print(type(gender))
-        #print(landmarks.shape)
-        #print(landmarks[0])
-        #landmarks = nose_normalization(landmarks)
-        #print(landmarks.shape)
-        #print(landmarks)
-        #print(landmarksH)
-        #gaze = torch.nan_to_num(gaze, nan=-1)
-        #print("")
-        #gender = self.layer_gender(gender).squeeze(1)
-        gender = self.layer_gender(gender.long()).squeeze(1)
-        #print(gaze)
-
-        #cpred = self.coorPred(x, c)
-
-        #with torch.no_grad():  # Disable gradient calculation
-        #    laugh, laughEmb = self.LaughClassifier(x[:, feature_dim//self.num_modality:])
-        #    laughEmb = self.laughNorm(laughEmb)
-        #print(laughEmb[0])
-        #print(cpred)
+   
 
         if self.use_spf:
-            #x_visual = self.layer011(x[:, feature_dim//self.num_modality:])
-            #x_visual = self.layer011(torch.cat((x[:, feature_dim//self.num_modality:], self.layer_spf(c), self.layer_spf2(cpred)), dim=1))
-            #x_visual = self.layer011(torch.cat((x[:, feature_dim//self.num_modality:], self.layer_spf(c), laughEmb), dim=1))
-            #x_visual = self.layer011(torch.cat((x[:, feature_dim//self.num_modality:], self.layer_gaze(gaze), self.layer_spf(c)), dim=1))
-            #x_visual = self.layer011(torch.cat((x[:, feature_dim//self.num_modality:], landmarks, self.layer_gaze(gaze), self.layer_spf(c)), dim=1))
-            x_visual = self.layer011(torch.cat((x[:, feature_dim//self.num_modality:],landmarks, self.layer_spf(c)), dim=1))
-            #x_visual = self.layer011(torch.cat((xH[:, feature_dim//self.num_modality:], self.layer_spf(cH)), dim=1))
-            #x_visual = self.layer011(torch.cat((x[:, feature_dim//self.num_modality:], self.layer_pose(landmarks), self.layer_spf(c)), dim=1))
-            #x_visual = self.layer011(torch.cat((x[:, feature_dim//self.num_modality:], xH[:, feature_dim//self.num_modality:], self.layer_pose(torch.cat((landmarks,landmarksH),dim=1)), self.layer_spf(torch.cat((c, cH), dim=1)), dim=1))
-            """
-            x_visual = self.layer011(torch.cat((
-                            x[:, feature_dim // self.num_modality:], 
-                            xH[:, feature_dim // self.num_modality:], 
-                            self.layer_pose(torch.cat((landmarks, landmarksH), dim=1)), 
-                            self.layer_spf(torch.cat((c, cH), dim=1))
-                        ), dim=1))
-            
-            x_visual = self.layer011(torch.cat((
-                            xH[:, feature_dim // self.num_modality:], 
-                            self.layer_pose(landmarksH), 
-                            self.layer_spf(cH)
-                        ), dim=1))  
-            """
-            #x_visual = self.layer011(torch.cat((x[:, feature_dim//self.num_modality:], self.poseNorm(self.layer_pose(landmarks)), self.layer_spf(c)), dim=1))
-            #x_visual = self.layer011(torch.cat((landmarks, self.layer_spf(c)), dim=1))
+            x_visual = self.layer011(torch.cat((x[:, feature_dim//self.num_modality:], self.layer_spf(c)), dim=1))
+         
         else:
-            x_visual = self.layer011(x[:, :feature_dim//self.num_modality])
+            x_visual = self.layer011(x[:, feature_dim//self.num_modality:])
 
         if self.num_modality == 1:
             x = x_visual
         elif self.num_modality == 2:
-            #x_audio = self.layer012(x[:, :feature_dim//self.num_modality])
-            #gender = self.layer_identity(torch.cat((gender, self.layer_speakerEmb(speakerEmb)), dim=1))
-            #gender = self.layer_speakerEmb(gender)
-            #x_audio = self.layer012(torch.cat((x[:, :feature_dim//self.num_modality],  ps), dim=1))
-            #x_audio = self.layer012(torch.cat((x[:, :feature_dim//self.num_modality],  ps, pers), dim=1))
-            #x_audio = self.layer012(torch.cat((ps, pers), dim=1))
-            #x_audio = self.layer012(pers)
-            #x_audio = self.layer012(torch.cat((x[:, :feature_dim//self.num_modality], self.layer_speakerEmb(speakerEmb), ps, gender), dim=1))
-            #x_audio = self.layer012(torch.cat((x[:, :feature_dim//self.num_modality], self.speakerNorm(speakerEmb), ps,  gender), dim=1))
-            x_audio = self.layer012(torch.cat((x[:, :feature_dim//self.num_modality], F.softmax(genClass(speakerEmb), dim=1), ps,  gender), dim=1))
-            #x_audio = self.layer012(torch.cat((x[:, :feature_dim//self.num_modality], self.speakerNorm(speakerEmb), ps, gender), dim=1))
-            #x_audio = self.layer012(torch.cat((x[:, :feature_dim//self.num_modality], ps), dim=1))
-            #x_audio = self.layer012(torch.cat((xH[:, :feature_dim//self.num_modality], ps), dim=1))
-            #x_audio = self.layer012(torch.cat((x[:, :feature_dim//self.num_modality], ps), dim=1))
-            #x_audio = self.layer012(torch.cat((x[:, :feature_dim//self.num_modality], gender), dim=1))
+
+            x_audio = self.layer012(torch.cat((x[:, :feature_dim//self.num_modality], ps), dim=1))
+       
 
             x_visual = self.visualNorm(x_visual)
             x_audio = self.audioNorm(x_audio)
 
             x = x_visual + x_audio
-            #print(x)
-            #x = self.dropoutEmb(x)
-            #x = x_audio
+      
 
         x = self.batch01(x)
         x = self.relu(x)

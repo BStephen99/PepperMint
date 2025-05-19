@@ -9,10 +9,6 @@ import torch.nn as nn
 
 
 
-
-
-
-
 class DilatedResidualLayer(Module):
     def __init__(self, dilation, in_channels, out_channels):
         super(DilatedResidualLayer, self).__init__()
@@ -57,19 +53,6 @@ class SPELL(Module):
 
         if self.use_spf:
             self.layer_spf = Linear(-1, cfg['proj_dim']) # projection layer for spatial features
-            #self.layer_spf2 = Linear(-1, cfg['proj_dim'])
-            #self.layer_gaze = Linear(-1, cfg['proj_dim'])
-            self.layer_pose = Linear(-1, cfg['proj_dim'])
-            #self.poseNorm = BatchNorm(cfg['proj_dim'])
-            #self.layer_ps = Linear(-1, cfg['proj_dim'])
-            self.layer_speakerEmb = Linear(-1, 10)
-            self.layer_gender = Embedding(3, 5)
-            self.speakerNorm = BatchNorm(192)
-            self.coorPred = coorPred
-            self.LaughClassifier = laugh
-            self.laughNorm = BatchNorm(128)
-            #self.dropoutEmb = Dropout(dropout)
-            #self.layer_identity = Linear(-1, channels[0])
             self.visualNorm = BatchNorm(cfg['proj_dim'])
             self.audioNorm = BatchNorm(cfg['proj_dim'])
 
@@ -105,7 +88,7 @@ class SPELL(Module):
             self.layer_ref3 = Refinement(final_dim)
 
 
-    #def forward(self, x, edge_index, edge_attr, c=None):
+
     def forward(self, x, edge_index, edge_attr, xH=None, c=None, cH=None, ps=None, pers=None, gender=None, gaze=None, landmarks=None, landmarksH=None, dinoEmb=None,speakerEmb=None, numPredSpeakers=None):
         feature_dim = x.shape[1]
   

@@ -106,16 +106,10 @@ def train(cfg):
                 #print(data.c.shape)
                 c = data.c.to(device)
                 #cH = data.ch.to(device)
-                #print(c)
                 try:
-                    #print(data.ps.shape)
                     ps = data.ps.to(device)
                     pers = data.perSpeak.to(device)
-                    #print(pers[0])
-                    #print(y[0])
                     speakerEmb = data.speakerEmb.to(device)
-                    #bodyEmb = data.bodyEmb.to(device)
-                    #dinoEmb = data.dinoEmb.to(device)
                     gender = data.gender.to(device)
                     
                     if "landmarks" in data:
@@ -127,19 +121,14 @@ def train(cfg):
                     
                     #landmarksHigh = data.landmarks_high.to(device)
                     #numPredSpeakers = data.numPredSpeakers.to(device)
-                    #gaze = data.gaze.to(device)
-                    #gaze = None
                 except Exception as e:
                     print(f"An error occurred: {e}")
                     print("********************************************")
                     ps = torch.tensor([0]*c.shape[0], dtype=torch.float32).unsqueeze(1).to(device)
                     pers = torch.tensor([0]*c.shape[0], dtype=torch.float32).unsqueeze(1).to(device)
                     #gender = torch.tensor([0]*c.shape[0], dtype=torch.float32).unsqueeze(1).to(device)
-                    #gaze = torch.tensor([0]*c.shape[0], dtype=torch.float32).unsqueeze(1).to(device)
                     #landmarks = torch.tensor([0]*c.shape[0], dtype=torch.float32).unsqueeze(1).to(device)
                     #landmarksHigh = torch.tensor([0]*cH.shape[0], dtype=torch.float32).unsqueeze(1).to(device)
-                    #gaze = None
-                    #landmarks = None
                     numPredSpeakers = None
 
 
@@ -211,8 +200,7 @@ def val(val_loader, use_spf, model, device, loss_func):
                 ps = data.ps.to(device)
                 pers = data.perSpeak.to(device)
                 speakerEmb = data.speakerEmb.to(device)
-                #bodyEmb = data.bodyEmb.to(device)
-                #dinoEmb = data.dinoEmb.to(device)
+
                 
                 gender = data.gender.to(device)
                 if "landmarks" in data:
@@ -225,7 +213,6 @@ def val(val_loader, use_spf, model, device, loss_func):
                 #landmarks = data.landmarks_back.to(device)
                 #landmarksHigh = data.landmarks_high.to(device)
                 #numPredSpeakers = data.numPredSpeakers.to(device)
-                #gaze = data.gaze.to(device)
                 #gender = torch.tensor([0]*c.shape[0], dtype=torch.float32).unsqueeze(1).to(device)
 
 

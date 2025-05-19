@@ -11,7 +11,7 @@ import pandas as pd
 import ast
 import joblib
 
-#ipca = joblib.load("/home2/bstephenson/GraVi-T/data/pca_model.pkl")
+ipca = joblib.load("./data/pca_model.pkl")
 
 
 import warnings
@@ -171,7 +171,7 @@ def generate_graph(data_file, args, path_graphs, sp):
                 for fts in twd:
                     for entity in data[f'{fts}']:
 
-                        print(fts, entity['person_id'])
+                        #print(fts, entity['person_id'])
 
         
                         timestamp.append(fts)
@@ -188,36 +188,34 @@ def generate_graph(data_file, args, path_graphs, sp):
                             personSpeaking.append(np.array([0]))
 
                         feature.append(entity['feature'])
-                        #featureHigh.append(entity['featureHigh'])
+                        featureHigh.append(entity['featureHigh'])
                         x1, y1, x2, y2 = [float(c) for c in entity['person_box'].split(',')]
                         if 'person_boxHigh' in entity:
                             x1h, y1h, x2h, y2h = [float(c) for c in entity['person_boxHigh'].split(',')]
-                            #coordH.append(np.array([x1h, y1h, x2h, y2h], dtype=np.float32))
-                        #coord.append(np.array([(x1+x2)/2, (y1+y2)/2, x2-x1, y2-y1], dtype=np.float32))
+                            coordH.append(np.array([x1h, y1h, x2h, y2h], dtype=np.float32))
+        
                         coord.append(np.array([x1, y1, x2, y2], dtype=np.float32))
                  
                         label.append(entity['label'])
-                        #print(entity['gaze'])
-                        #if 'gaze' in entity:
-                        #gaze.append(processGaze(entity['gaze']))
+            
+                        gaze.append(processGaze(entity['gaze']))
 
                         person_id.append(entity['person_id'])
                         global_id.append(entity['global_id'])
-                        #if 'gender' in entity:
-                        #print(entity['gender'])
+        
                         gender.append(MaleFemaleOrPepper(entity['gender']))
                         
                         if "landmarks_back" in entity:
                             landmarks_back.append(processLandmarks(entity['landmarks_back']))
-                            #landmarks_high.append(processLandmarks(entity['landmarks_high']))
+                            landmarks_high.append(processLandmarks(entity['landmarks_high']))
                         elif 'landmarks' in entity:
                             landmarks_back.append(processLandmarks(entity['landmarks']))
                         
-                        #landmarks.append(processLandmarks(entity['landmarks']))
-                        #speakerEmb.append(processSpeakerEmb(entity['speakerEmb']))
-                        #print(entity['speakerEmb'])
-                        #print(entity['speakerEmb'])
-                        speakerEmb.append(entity['speakerEmb'])
+         
+                        if args.pca == True: 
+                            speakerEmb.append(processSpeakerEmb(entity['speakerEmb']))
+                        else:
+                            speakerEmb.append(entity['speakerEmb'])
         
 
                 # Get a list of the edge information: these are for edge_index and edge_attr
@@ -258,14 +256,13 @@ def generate_graph(data_file, args, path_graphs, sp):
                 graphs = Data(x = torch.tensor(np.array(feature, dtype=np.float32), dtype=torch.float32),
                       xH = torch.tensor(np.array(featureHigh, dtype=np.float32), dtype=torch.float32), #not in all
                       c = torch.tensor(np.array(coord, dtype=np.float32), dtype=torch.float32),
-                      #ch = torch.tensor(np.array(coordH, dtype=np.float32), dtype=torch.float32), #not in all
+                      ch = torch.tensor(np.array(coordH, dtype=np.float32), dtype=torch.float32), #not in all
                       ps = torch.tensor(np.array(pepperSpeaking, dtype=np.float32), dtype=torch.float32),
                       perSpeak = torch.tensor(np.array(personSpeaking, dtype=np.float32), dtype=torch.float32),
                       g = torch.tensor(global_id, dtype=torch.long),
-                      #g = np.array(global_id),
                       gender = torch.tensor(np.array(gender, dtype=np.float32), dtype=torch.long), #not in all
                       #landmarks_back = torch.tensor(np.array(landmarks_back, dtype=np.float32), dtype=torch.float32),
-                      #landmarks_high = torch.tensor(np.array(landmarks_high, dtype=np.float32), dtype=torch.float32),
+                      landmarks_high = torch.tensor(np.array(landmarks_high, dtype=np.float32), dtype=torch.float32),
                       landmarks = torch.tensor(np.array(landmarks_back, dtype=np.float32), dtype=torch.float32), #not in all
                       gaze = torch.tensor(np.array(gaze, dtype=np.float32), dtype=torch.float32), #not in all
                       #numPredSpeakers = torch.tensor(np.array(numPredSpeakers, dtype=np.float32), dtype=torch.float32),
@@ -297,6 +294,7 @@ if __name__ == "__main__":
     parser.add_argument('--ec_mode',       type=str,   help='Edge connection mode (csi | cdi)', required=True)
     parser.add_argument('--time_span',     type=float, help='Maximum time span for each graph in seconds', required=True)
     parser.add_argument('--tau',           type=float, help='Maximum time difference between neighboring nodes in seconds', required=True)
+    parser.add_argument('--pca',           type=bool, default=False, help='Perform pca on speaker embeddings', required=False)
 
     args = parser.parse_args()
 
@@ -304,14 +302,8 @@ if __name__ == "__main__":
  
 
     print ('This process might take a few minutes')
-    #for sp in ['val']:
-    #for sp in ['ours']:
-    #for sp in ["AVAtrain", "WASDtrain", 'train', 'test']:
-    #for sp in ["WASDtrain", 'train', 'test']:
-    #for sp in ['train', 'test']:
-    #for sp in ['test']:
-    #for sp in ["AVAtrain", "WASDtrain"]:
-    for sp in ["WASDtrainLaugh"]:
+
+    for sp in ['train', 'test']:
         path_graphs = os.path.join(args.root_data, f'graphs/{args.features}_{args.ec_mode}_{args.time_span}_{args.tau}/{sp}')
         os.makedirs(path_graphs, exist_ok=True)
 

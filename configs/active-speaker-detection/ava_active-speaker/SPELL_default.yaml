@@ -1,12 +1,6 @@
-#exp_name: SPELL_ASD_defaultCheat
-#exp_name: SPELL_ASD_defaultAVAonly200STE2coord
-#exp_name: SPELL_ASD_defaultTwoViews
-exp_name: ALL2
+exp_name: basic
 model_name: SPELL
-#graph_name: RESNET18-TSM-AVA_csi_30.0_0.9 #Dino2RESNET18-TSM-AUG2_csi_90.0_0.9
-#graph_name: RESNET18-TSM-OURS_csi_30.0_0.9
 graph_name: RESNET18-TSM-ALL2_csi_30.0_0.9
-#DinoRESNET18-TSM-AUG4_csi_90.0_0.9 #RESNET18-TSM-AUG4_csi_90.0_0.9
 loss_name: bce_logit
 use_spf: True
 use_ref: False
@@ -16,10 +10,14 @@ channel2: 16
 proj_dim: 64
 final_dim: 1
 num_att_heads: 0
-dropout: 0.3 #0.2
-lr: 0.0005 #0.0005
+dropout: 0.3
+lr: 0.0005
 wd: 0
 batch_size: 16
 sch_param: 10
 num_epoch: 70
-
+training_sets: ["train"]
+test_sets: ["test"]
+csv_path: "/home2/bstephenson/GraVi-T/annotations.csv"
+multiclass: False
+positiveLabels: ["speaking_to_pepper", "speaking_to_human"]

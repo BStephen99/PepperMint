@@ -33,10 +33,9 @@ def evaluate(cfg):
     logger.info('Preparing a model and data loaders')
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     model = build_model(cfg, device)
-    print(path_graphs)
     val_loader = DataLoader(GraphDataset(os.path.join(path_graphs, 'val'), True))
     num_val_graphs = len(val_loader)
-    print(num_val_graphs)
+    print("Number of val graphs: ", num_val_graphs)
 
     # Init
     #x_dummy = torch.tensor(np.array(np.random.rand(10, 1024), dtype=np.float32), dtype=torch.float32).to(device)

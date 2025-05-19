@@ -59,11 +59,9 @@ def create_and_save_dict(df1, df2, filename, global_count):
             feature_str = feature_row.iloc[0][df2.columns[10]] #get feature
             feature_list = ast.literal_eval(feature_str)  # Convert string to list of floats
             feature = np.array(feature_list, dtype=np.float32)
-            #print(feature.shape)
             speakerEmb = feature_row.iloc[0][df2.columns[11]]
             speakerEmb = ast.literal_eval(speakerEmb)
             speakerEmb = np.array(speakerEmb, dtype=np.float32)
-            #print(speakerEmb)
         else:
             print(row['video_id'], row['frame_timestamp'], row['entity_id'], 'notfound')
             feature = np.zeros(1024) #np.array([])

@@ -96,62 +96,49 @@ def evaluate(cfg):
             #print(data)
             g = data.g.tolist()
             x = data.x.to(device)
-            #xH = data.xH.to(device)
             edge_index = data.edge_index.to(device)
             edge_attr = data.edge_attr.to(device)
             c = None
             if cfg['use_spf']:
                 try:
                     c = data.c.to(device)
-                    #cH = data.ch.to(device)
                     ps = data.ps.to(device)
                     pers = data.perSpeak.to(device)
                     speakerEmb = data.speakerEmb.to(device)
-                    #bodyEmb = data.bodyEmb.to(device)
                     gender = data.gender.to(device)
-                    #print(gender)
-                    #landmarks = data.landmarks_back.to(device)
                     if "landmarks" in data:
                         landmarks = data.landmarks.to(device) 
                     elif "landmarks_back" in data: 
                         landmarks = data.landmarks_back.to(device)
-                        #landmarksHigh = data.landmarks_high.to(device)
-                    #landmarksHigh = data.landmarks_high.to(device)
+                    if args.twoView:
+                        xH = data.xH.to(device)
+                        cH = data.ch.to(device)
+                        landmarksHigh = data.landmarks_high.to(device)
                     #numPredSpeakers = data.numPredSpeakers.to(device)
-                    #gaze = data.gaze.to(device)
-                    #dinoEmb = data.dinoEmb.to(device)
+                    if args.gaze:
+                        gaze = data.gaze.to(device)
                 except:
                     print("except")
                     c = data.c.to(device)
                     ps = torch.tensor([0]*c.shape[0], dtype=torch.float32).unsqueeze(1).to(device)
                     pers = torch.tensor([0]*c.shape[0], dtype=torch.float32).unsqueeze(1).to(device)
-                    #gender= torch.tensor([0]*c.shape[0], dtype=torch.long).unsqueeze(1).to(device)
-                    #print(gender)
                     gaze=None
                     landmarks=None
                     numPredSpeakers = None
 
 
-            #logits = model(x, edge_index, edge_attr, c, ps, pers, dinoEmb=dinoEmb, speakerEmb=speakerEmb)
-            #logits = model(x, edge_index, edge_attr, c, ps, pers, gender=gender, gaze=gaze, landmarks=landmarks, numPredSpeakers = numPredSpeakers, speakerEmb=speakerEmb, bodyEmb=bodyEmb
-            #logits = model(x, edge_index, edge_attr, c, ps, pers, gender=gender, gaze=gaze, landmarks=landmarks, numPredSpeakers = numPredSpeakers, speakerEmb=speakerEmb)
-            #logits = model(x, edge_index, edge_attr, c, ps, gender=gender, gaze=gaze, landmarks=landmarks, speakerEmb=speakerEmb, numPredSpeakers=numPredSpeakers)
-            #logits = model(x, edge_index, edge_attr, c, ps, pers=None, gender=gender, landmarks=landmarks, speakerEmb=speakerEmb)
-            #logits = model(x, edge_index, edge_attr, c, ps,pers=pers, gender=gender, landmarks=landmarks, speakerEmb=speakerEmb)
-            #logits = model(x, xH, edge_index, edge_attr, c, cH, ps,pers=pers, gender=gender, landmarks=landmarks, landmarksH=landmarksHigh, speakerEmb=speakerEmb)
-            #logits = model(x, edge_index, edge_attr, xH=None, c=c, ps=ps,pers=pers, gender=gender, landmarks=None, landmarksH=None, speakerEmb=speakerEmb)
-            #logits = model(x, edge_index, edge_attr, xH=None, c=c, ps=ps,pers=pers, gender=gender, landmarks=landmarks, landmarksH=None, speakerEmb=speakerEmb)
-            #logits = model(x, edge_index, edge_attr, xH=None, c=c, ps=ps,pers=pers, gaze=gaze, gender=gender, landmarks=landmarks, landmarksH=None, speakerEmb=speakerEmb)
-            logits = model(x, edge_index, edge_attr, xH=None, c=c, ps=ps,pers=pers, gender=gender, gaze=None, landmarks=landmarks, landmarksH=None, speakerEmb=speakerEmb)
-            #logits = model(x, edge_index, edge_attr, xH=xH, c=c, cH=cH, ps=ps,pers=pers, gaze=gaze, gender=gender, landmarks=landmarks, landmarksH=landmarksHigh, speakerEmb=speakerEmb)
-            #logits = model(x, edge_index, edge_attr, xH=None, c=c, cH=None, ps=ps,pers=pers, gaze=None, gender=None, landmarks=None, landmarksH=None, speakerEmb=speakerEmb)
-            #logits = model(x, edge_index, edge_attr, xH=None, c=c, ps=ps,pers=pers, gender=None, landmarks=None, landmarksH=None, speakerEmb=speakerEmb)
-            #logits = model(x, edge_index, edge_attr, c, ps, pers)
-            #print(logits)
+            if args.gaze and args.twoView:
+                logits = model(x, edge_index, edge_attr, xH=xH, c=c, cH=cH, ps=ps,pers=pers, gender=gender, gaze=gaze, landmarks=landmarks, landmarksH=landmarksH, speakerEmb=speakerEmb)
+            elif args.gaze:
+                logits = model(x, edge_index, edge_attr, xH=None, c=c, cH=None, ps=ps,pers=pers, gender=gender, gaze=gaze, landmarks=landmarks, landmarksH=None, speakerEmb=speakerEmb)
+            elif args.twoView:
+                logits = model(x, edge_index, edge_attr, xH=xH, c=c, cH=cH, ps=ps,pers=pers, gender=gender, gaze=None, landmarks=landmarks, landmarksH=landmarksH, speakerEmb=speakerEmb)
+            else:
+                logits = model(x, edge_index, edge_attr, xH=None, c=c, cH=None,  ps=ps,pers=pers, gender=gender, gaze=None, landmarks=landmarks, landmarksH=None, speakerEmb=speakerEmb)
+         
 
             # Change the format of the model output
             preds = get_formatted_preds(cfg, logits, g, data_dict)
-            #print(preds)
             preds_all.extend(preds)
 
             logger.info(f'[{i:04d}|{num_val_graphs:04d}] processed')
@@ -178,6 +165,8 @@ if __name__ == "__main__":
     parser.add_argument('--all_splits',    action='store_true',   help='Evaluate all splits')
     parser.add_argument('--modelNum',      type=str,  default="None", help='Name of model')
     parser.add_argument('--mode',          type=str,  default="pepper", help='Evaluation mode')
+    parser.add_argument('--gaze',          type=bool,  default=False, help='Gaze used')
+    parser.add_argument('--twoView',       type=bool,  default=False, help='Two Views')
 
     args = parser.parse_args()
 
