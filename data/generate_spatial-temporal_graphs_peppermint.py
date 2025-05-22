@@ -11,6 +11,7 @@ import pandas as pd
 import ast
 import joblib
 
+
 ipca = joblib.load("./data/pca_model.pkl")
 
 
@@ -131,7 +132,7 @@ def generate_graph(data_file, args, path_graphs, sp):
 
         # Get a list of frame_timestamps
         list_fts = sorted(set([float(frame_timestamp) for frame_timestamp in data.keys()]))
-        #print(list_fts)
+
 
         # Get the time windows where the time span of each window is not greater than "time_span"
         twd_all = _get_time_windows(list_fts, args.time_span)
@@ -249,8 +250,6 @@ def generate_graph(data_file, args, path_graphs, sp):
         # edge_attr: information about whether the edge is spatial (0) or temporal (positive: backward, negative: forward)
         # y: labels
 
-        #consistent_length = len(set([len(sublist) for sublist in landmarks])) == 1
-        #print("Consistent length:", consistent_length)
 
 
                 graphs = Data(x = torch.tensor(np.array(feature, dtype=np.float32), dtype=torch.float32),
@@ -294,7 +293,7 @@ if __name__ == "__main__":
     parser.add_argument('--ec_mode',       type=str,   help='Edge connection mode (csi | cdi)', required=True)
     parser.add_argument('--time_span',     type=float, help='Maximum time span for each graph in seconds', required=True)
     parser.add_argument('--tau',           type=float, help='Maximum time difference between neighboring nodes in seconds', required=True)
-    parser.add_argument('--pca',           type=bool, default=False, help='Perform pca on speaker embeddings', required=False)
+    parser.add_argument('--pca',           type=bool, default=True, help='Perform pca on speaker embeddings', required=False)
 
     args = parser.parse_args()
 

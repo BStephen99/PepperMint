@@ -11,7 +11,8 @@ import pandas as pd
 import ast
 import joblib
 
-#ipca = joblib.load("/home2/bstephenson/GraVi-T/data/pca_model.pkl")
+
+ipca = joblib.load("./data/pca_model.pkl")
 
 
 import warnings
@@ -51,8 +52,6 @@ def processSpeakerEmb(value):
     return new_transformed_data.squeeze(0)
 
 
-
-
 def processGaze(gaze):
     if any(x is None for x in gaze):
         #print(value)
@@ -66,6 +65,7 @@ def processNumSpeakers(value):
         return value[0]
     else:
         return 0
+
 
 def clean_global_dict(global_dict):
     # Iterate over each key in the global dictionary
@@ -87,6 +87,7 @@ def clean_global_dict(global_dict):
         del global_dict[key]
 
     return global_dict
+
 
 def _get_time_windows(list_fts, time_span):
     """
@@ -131,7 +132,6 @@ def generate_graph(data_file, args, path_graphs, sp):
 
         # Get a list of frame_timestamps
         list_fts = sorted(set([float(frame_timestamp) for frame_timestamp in data.keys()]))
-        #print(list_fts)
 
         # Get the time windows where the time span of each window is not greater than "time_span"
         twd_all = _get_time_windows(list_fts, args.time_span)
@@ -193,8 +193,11 @@ def generate_graph(data_file, args, path_graphs, sp):
                             landmarks.append(processLandmarks(entity['landmarks']))
                         elif "landmarks_back" in entity:
                             landmarks.append(processLandmarks(entity['landmarks_back']))
-                        #speakerEmb.append(processSpeakerEmb(entity['speakerEmb']))
-                        speakerEmb.append(entity['speakerEmb'])
+
+                        if args.pca == True: 
+                            speakerEmb.append(processSpeakerEmb(entity['speakerEmb']))
+                        else:
+                            speakerEmb.append(entity['speakerEmb'])
         
 
                 # Get a list of the edge information: these are for edge_index and edge_attr
@@ -237,9 +240,8 @@ def generate_graph(data_file, args, path_graphs, sp):
                       ps = torch.tensor(np.array(pepperSpeaking, dtype=np.float32), dtype=torch.float32),
                       perSpeak = torch.tensor(np.array(personSpeaking, dtype=np.float32), dtype=torch.float32),
                       g = torch.tensor(global_id, dtype=torch.long),
-                      gender = torch.tensor(np.array(gender, dtype=np.float32), dtype=torch.long), #not in all
+                      #gender = torch.tensor(np.array(gender, dtype=np.float32), dtype=torch.long), #not in all
                       landmarks = torch.tensor(np.array(landmarks, dtype=np.float32), dtype=torch.float32), #not in all
-                      #gaze = torch.tensor(np.array(gaze, dtype=np.float32), dtype=torch.float32), #not in all
                       #numPredSpeakers = torch.tensor(np.array(numPredSpeakers, dtype=np.float32), dtype=torch.float32),
                       edge_index = torch.tensor(np.array([node_source, node_target], dtype=np.int64), dtype=torch.long),
                       edge_attr = torch.tensor(edge_attr, dtype=torch.float32),
@@ -269,6 +271,7 @@ if __name__ == "__main__":
     parser.add_argument('--ec_mode',       type=str,   help='Edge connection mode (csi | cdi)', required=True)
     parser.add_argument('--time_span',     type=float, help='Maximum time span for each graph in seconds', required=True)
     parser.add_argument('--tau',           type=float, help='Maximum time difference between neighboring nodes in seconds', required=True)
+    parser.add_argument('--pca',           type=bool, default=False, help='Perform pca on speaker embeddings', required=False)
 
     args = parser.parse_args()
 
@@ -287,7 +290,6 @@ if __name__ == "__main__":
         path_graphs = os.path.join(args.root_data, f'graphs/{args.features}_{args.ec_mode}_{args.time_span}_{args.tau}/{sp}')
         os.makedirs(path_graphs, exist_ok=True)
 
-        #list_data_files = sorted(glob.glob(os.path.join(args.root_data, f'features/{args.features}/{sp}/220929*.pkl')))[:]
         list_data_files = sorted(glob.glob(os.path.join(args.root_data, f'features/{args.features}/{sp}/*.pkl')))[:]
         print(len(list_data_files))
 

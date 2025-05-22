@@ -10,8 +10,7 @@ from torch_geometric.data import Data
 import ast
 import pandas as pd
 
-#misMatchDF = pd.read_csv("/home2/bstephenson/GraVi-T/misMatch/AVAmismatchRows.csv")
-#misMatchDF = pd.read_csv("/home2/bstephenson/GraVi-T/misMatch/AVAtrainmismatchRows.csv")
+
 
 def check_row_exists(df, video_id, timestamp):
     # Filter the DataFrame based on video_id and timestamp
@@ -51,15 +50,14 @@ def get_highest_global_id(global_dict):
     return max_global_id + 3000000
 
 
+#Function to filter Pepper nodes from graphs
+
 def clean_global_dict(global_dict):
     # Iterate over each key in the global dictionary
     keys_to_remove = []  # Store keys to remove from the global dictionary
     for key, value_list in global_dict.items():
-        #print(value_list)
         # Filter the list to exclude dictionaries with 'pepper' in the person_id
-        #filtered_list = [item for item in value_list if "pepper" not in item['person_id']]
-        filtered_list = [item for item in value_list if "offscreen" not in item['person_id']]
-        #filtered_list = [item for item in filtered_list if [float(c) for c in item['person_box'].split(',')][2] != 0 and [float(c) for c in item['person_box'].split(',')][3] != 0]
+        filtered_list = [item for item in value_list if "pepper" not in item['person_id']]
 
         if len(filtered_list) == 0:
             # If the filtered list is empty, mark the key for removal
@@ -108,21 +106,18 @@ def generate_graph(data_file, args, path_graphs, sp):
     """
 
     video_id = os.path.splitext(os.path.basename(data_file))[0]
-    #print(video_id)
     with open(data_file, 'rb') as f:
         data = pickle.load(f)  #nosec
     data=clean_global_dict(data)
-    #maxGlobal = get_highest_global_id(data)
-    #print("maxGlobal",maxGlobal)
+
 
 
     # Get a list of frame_timestamps
     list_fts = sorted(set([float(frame_timestamp) for frame_timestamp in data.keys()]))
-    #print(list_fts)
 
     # Get the time windows where the time span of each window is not greater than "time_span"
     twd_all = _get_time_windows(list_fts, args.time_span)
-    #print(twd_all)
+
 
     # Iterate over every time window
     num_graph = 0
@@ -138,9 +133,6 @@ def generate_graph(data_file, args, path_graphs, sp):
         personSpeaking = []
         speakerEmb = []
         for fts in twd:
-            #print(fts)
-            #print(f'{fts:g}')
-            #for entity in data[f'{fts:g}']:
             for entity in data[f'{fts}']:
                 #print(fts)
                 #print(entity['feature'].shape)
