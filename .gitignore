@@ -1,0 +1,16 @@
+annotations.csv
+avaAllaugmentedGazeAnnotations.csv
+avaAllaugmentedGaze.csv
+predictions.csv
+results/
+data/features/
+data/graphs/
+data/annotations
+misMatch/
+laughEmbs.csv
+laughEmbsVal.csv
+train_orig_gender_landmarks_speaker_emb.csv
+train_updated_with_laugh_backchannel.csv
+val_orig_gender_landmarks_speaker_emb.csv
+val_updated_with_laugh_backchannel.csv
+__pycache__/

@@ -1,0 +1,25 @@
+exp_name: LaughWASD
+model_name: SPELLSPEAKEMB
+graph_name: RESNET18-TSM-ALL2_csi_30.0_0.9
+training_sets: ["WASDtrainLaugh", "WASDvalLaugh", "train"]
+test_sets: ["test"]
+loss_name: bce_logit
+use_spf: True
+use_ref: False
+num_modality: 2
+channel1: 64
+channel2: 16
+proj_dim: 64
+final_dim: 1
+num_att_heads: 0
+dropout: 0.3
+lr: 0.0005
+wd: 0
+batch_size: 16
+sch_param: 10
+num_epoch: 70
+csv_path: "/home2/bstephenson/GraVi-T/annotations.csv"
+multiclass: False
+classIndex: 1 #Evaluate one class for multiclass model
+positiveLabels: ["Speaking", "Laughing", "Backchannel"]
+
