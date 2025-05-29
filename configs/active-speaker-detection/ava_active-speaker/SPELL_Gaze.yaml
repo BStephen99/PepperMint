@@ -22,3 +22,7 @@ csv_path: "/home2/bstephenson/GraVi-T/annotations.csv"
 multiclass: False
 positiveLabels: ["speaking_to_pepper", "speaking_to_human"]
 useTwoViews: "Back" #"High", "Both"
+gender: False
+gaze: True
+twoView: False
+numPredSpeakers: False

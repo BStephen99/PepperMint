@@ -1,8 +1,8 @@
 exp_name: 2feats
 model_name: SPELL2FEATS
 graph_name: RESNET18-TSM-ALL2_csi_30.0_0.9
-#training_sets: ["WASDtrainLaugh", "WASDvalLaugh", "train"]
-training_sets: ["train"]
+training_sets: ["WASDtrainLaugh", "WASDvalLaugh", "train"]
+#training_sets: ["train"]
 test_sets: ["test"]
 loss_name: bce_logit #ce
 use_spf: True
@@ -27,3 +27,7 @@ classIndex: 2 #Evaluate one class for multiclass model 0=Not speaking, 1=Speakin
 #positiveLabels: ["Laughing"]
 positiveLabels: ["speaking_to_pepper", "speaking_to_human"]
 useTwoViews: "Back" #"High", "Both"
+gender: True
+gaze: True
+twoView: False
+numPredSpeakers: False

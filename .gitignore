@@ -14,3 +14,4 @@ train_updated_with_laugh_backchannel.csv
 val_orig_gender_landmarks_speaker_emb.csv
 val_updated_with_laugh_backchannel.csv
 __pycache__/
+resnet18-tsm-aug.pth

@@ -13,11 +13,12 @@ import shutil
 #expName = "byplayAudioOnly"
 #expName = "byplayVisualOnly"
 #expName = "byplayGaze2views"
+expName = "byplayBasic"
 #expName = "speakEmb"
 #expName = "speakEmbWithWASD"
 #expName = "forward"
 #expName = "landmarks"
-expName = "landmarksWASD"
+#expName = "landmarksWASD"
 #expName = "gaze"
 #expName = "basic"
 #expName = "2feats"
@@ -27,13 +28,13 @@ expName = "landmarksWASD"
 def run_training_multiple_times():
     command = [
         "python3", 
-        "tools/train_context_reasoning.py", 
+        #"tools/train_context_reasoning.py", 
         #"tools/train_context_reasoning_gaze.py", 
-        #"tools/train_context_reasoningMulticlass.py",
+        "tools/train_context_reasoningMulticlass.py",
         "--cfg", 
-        #"configs/active-speaker-detection/ava_active-speaker/SPELL_defaultByplay.yaml"
+        "configs/active-speaker-detection/ava_active-speaker/SPELL_Byplay.yaml"
         #"configs/active-speaker-detection/ava_active-speaker/SPELL_SpeakEmb.yaml"
-        "configs/active-speaker-detection/ava_active-speaker/SPELL_Landmarks.yaml"
+        #"configs/active-speaker-detection/ava_active-speaker/SPELL_Landmarks.yaml"
         #"configs/active-speaker-detection/ava_active-speaker/SPELL_2Feats.yaml"
         #"configs/active-speaker-detection/ava_active-speaker/SPELL_Gaze.yaml"
         #"configs/active-speaker-detection/ava_active-speaker/SPELL_default.yaml"
@@ -67,8 +68,8 @@ run_training_multiple_times()
 
 
 def evaluate_multiple_checkpoints():
-    #base_cmd = "python3 tools/evaluateByplay.py --exp_name "+expName+" --eval_type AVA_ASD --modelNum"
-    base_cmd = "python3 tools/evaluate.py --exp_name "+expName+" --eval_type AVA_ASD --mode pepper --modelNum"
+    base_cmd = "python3 tools/evaluateByplay.py --exp_name "+expName+" --eval_type AVA_ASD --modelNum"
+    #base_cmd = "python3 tools/evaluate.py --exp_name "+expName+" --eval_type AVA_ASD --mode pepper --modelNum"
     results_dir = "/home2/bstephenson/GraVi-T/results"
     output_file = os.path.join(results_dir, "results_feature.csv")
 
