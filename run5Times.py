@@ -8,10 +8,10 @@ import shutil
 #expName = "ALL2"
 #expName = "Ours"
 #expName = "byplayGAZE"
-expName= "byplayLAND" 
+#expName= "byplayLAND" 
 #expName = "byplay2Feats"
-#expName = "byplayAudioOnly"
-#expName = "byplayVisualOnly"
+#expName = "byplayAudioOnly" 
+expName = "byplayVisualOnly"
 #expName = "byplayGaze2views"
 #expName = "byplayBasic"
 #expName = "speakEmb"
@@ -32,7 +32,11 @@ def run_training_multiple_times():
         #"tools/train_context_reasoning_gaze.py", 
         "tools/train_context_reasoning_multiclass.py",
         "--cfg", 
-        "configs/active-speaker-detection/ava_active-speaker/SPELL_Byplay.yaml"
+        #"configs/active-speaker-detection/ava_active-speaker/SPELL_ByplayGaze.yaml"
+        #"configs/active-speaker-detection/ava_active-speaker/SPELL_ByplayGazeLand.yaml"
+        #"configs/active-speaker-detection/ava_active-speaker/SPELL_ByplayAudioOnly.yaml"
+        "configs/active-speaker-detection/ava_active-speaker/SPELL_ByplayVizOnly.yaml"
+        #"configs/active-speaker-detection/ava_active-speaker/SPELL_ByplayLandmarks.yaml"
         #"configs/active-speaker-detection/ava_active-speaker/SPELL_SpeakEmb.yaml"
         #"configs/active-speaker-detection/ava_active-speaker/SPELL_Landmarks.yaml"
         #"configs/active-speaker-detection/ava_active-speaker/SPELL_2Feats.yaml"

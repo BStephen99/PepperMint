@@ -116,7 +116,10 @@ def train(cfg):
                     
                     #landmarksHigh = data.landmarks_high.to(device)
                     #numPredSpeakers = data.numPredSpeakers.to(device)
-                    #gaze = data.gaze.to(device)
+                    if cfg["gaze"]:
+                        gaze = data.gaze.to(device)
+                    if cfg["gender"]:
+                        gender = data.gender.to(device)
                 except Exception as e:
                     print(f"An error occurred: {e}")
                     print("********************************************")
@@ -125,12 +128,26 @@ def train(cfg):
                     numPredSpeakers = None
 
 
+            kwargs = {
+                "x": x,
+                "edge_index": edge_index,
+                "edge_attr": edge_attr,
+                "c": c,
+                "ps": ps,
+                "pers": pers,
+                "landmarks": landmarks,
+                "speakerEmb": speakerEmb,
+                "gender": gender if cfg["gender"] else None,
+                "gaze": gaze if cfg["gaze"] else None,
+                "xH": xH if cfg["twoView"] else None,
+                "cH": cH if cfg["twoView"] else None,
+                "landmarksH": landmarksH if cfg["twoView"] else None,
+                "numPredSpeakers": numPredSpeakers if cfg["numPredSpeakers"] else None
+            }
 
-    
-            #logits = model(x, xH, edge_index, edge_attr, c, cH, ps,pers=pers, gender=gender, landmarks=landmarks, landmarksH=landmarksHigh, speakerEmb=speakerEmb)
-            #logits = model(x, edge_index, edge_attr, xH=xH, c=c, cH=cH, ps=ps,pers=pers, gaze=gaze, gender=gender, landmarks=landmarks, landmarksH=landmarksHigh, speakerEmb=speakerEmb)
-            logits = model(x, edge_index, edge_attr, xH=None, c=c, cH=None, ps=ps,pers=pers, gaze=None, gender=None, landmarks=None, landmarksH=None, speakerEmb=speakerEmb)
-            #logits = model(x, edge_index, edge_attr, c, ps, gender=gender, gaze=gaze, landmarks=landmarks, speakerEmb=speakerEmb, numPredSpeakers=numPredSpeakers)
+            logits = model(**kwargs)
+
+
     
         
             loss = loss_func(logits, y.long())
@@ -196,12 +213,32 @@ def val(val_loader, use_spf, model, device, loss_func):
                 else: 
                         landmarks = data.landmarks_back.to(device)
                         #landmarksHigh = data.landmarks_high.to(device)
+
+                if cfg["gaze"]:
+                        gaze = data.gaze.to(device)
+                if cfg["gender"]:
+                        gender = data.gender.to(device)
                 
      
+            kwargs = {
+                "x": x,
+                "edge_index": edge_index,
+                "edge_attr": edge_attr,
+                "c": c,
+                "ps": ps,
+                "pers": pers,
+                "landmarks": landmarks,
+                "speakerEmb": speakerEmb,
+                "gender": gender if cfg["gender"] else None,
+                "gaze": gaze if cfg["gaze"] else None,
+                "xH": xH if cfg["twoView"] else None,
+                "cH": cH if cfg["twoView"] else None,
+                "landmarksH": landmarksH if cfg["twoView"] else None,
+                "numPredSpeakers": numPredSpeakers if cfg["numPredSpeakers"] else None
+            }
 
+            logits = model(**kwargs)
 
-
-            logits = model(x, edge_index, edge_attr, xH=None, c=c, ps=ps,pers=pers, gender=None, gaze=None, landmarks=None, landmarksH=None, speakerEmb=speakerEmb)
             
             #loss = loss_func(logits.squeeze(), y)
 

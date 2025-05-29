@@ -1,5 +1,7 @@
-# GraVi-T
-This repository contains an open-source codebase for Graph-based long-term Video undersTanding (GraVi-T). It is designed to serve as a spatial-temporal graph learning framework for multiple video understanding tasks. The current version supports training and evaluating two state-of-the-art models: [SPELL](https://www.ecva.net/papers/eccv_2022/papers_ECCV/papers/136950367.pdf) for the tasks of active speaker detection, action localization, and action segmentation, and [VideoSAGE](https://arxiv.org/abs/2404.10539) for video summarization.
+positiveLabels:  ["speaking_to_pepper", "speaking_to_human"] #labels for the positive classes in the csv
+genderClass: False  #use gender predictor model
+
+
 
 In the near future, we will release more advanced graph-based approaches (e.g. [STHG](https://arxiv.org/abs/2306.10608)) for other tasks, including audio-visual diarization.
 

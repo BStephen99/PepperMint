@@ -8,8 +8,6 @@ import torch.nn as nn
 
 
 
-
-
 class DilatedResidualLayer(Module):
     def __init__(self, dilation, in_channels, out_channels):
         super(DilatedResidualLayer, self).__init__()
@@ -41,9 +39,9 @@ class Refinement(Module):
         return out
 
 
-class SPELLBYPLAYLAND(Module):
+class SPELL(Module):
     def __init__(self, cfg):
-        super(SPELLBYPLAYLAND, self).__init__()
+        super(SPELL, self).__init__()
         self.use_spf = cfg['use_spf'] # whether to use the spatial features
         self.use_ref = cfg['use_ref']
         self.num_modality = cfg['num_modality']
@@ -59,7 +57,6 @@ class SPELLBYPLAYLAND(Module):
             self.layer_speakerEmb = Linear(-1, 10)
             self.layer_gender = Embedding(3, 5)
             self.speakerNorm = BatchNorm(20)
-            self.laughNorm = BatchNorm(128)
             self.visualNorm = BatchNorm(cfg['proj_dim'])
             self.audioNorm = BatchNorm(cfg['proj_dim'])
 
@@ -95,13 +92,17 @@ class SPELLBYPLAYLAND(Module):
             self.layer_ref3 = Refinement(final_dim)
 
 
-    #def forward(self, x, edge_index, edge_attr, c=None):
     def forward(self, x, edge_index, edge_attr, xH=None, c=None, cH=None, ps=None, pers=None, gender=None, gaze=None, landmarks=None, landmarksH=None, dinoEmb=None,speakerEmb=None, numPredSpeakers=None):
         feature_dim = x.shape[1]
-    
+
+        gaze = torch.nan_to_num(gaze)
+
+        gender = self.layer_gender(gender.long()).squeeze(1)
+ 
 
         if self.use_spf:
-            x_visual = self.layer011(torch.cat((x[:, feature_dim//self.num_modality:], landmarks, self.layer_spf(c)), dim=1))
+        
+            x_visual = self.layer011(torch.cat((x[:, feature_dim//self.num_modality:], ps, pers, landmarks, self.layer_spf(c)), dim=1))
             #x_visual = self.layer011(torch.cat((x[:, feature_dim//self.num_modality:], xH[:, feature_dim//self.num_modality:], self.layer_pose(torch.cat((landmarks,landmarksH),dim=1)), self.layer_spf(torch.cat((c, cH), dim=1)), dim=1))
             """
             x_visual = self.layer011(torch.cat((
@@ -117,20 +118,34 @@ class SPELLBYPLAYLAND(Module):
                             self.layer_spf(cH)
                         ), dim=1))  
             """
-            #x_visual = self.layer011(torch.cat((x[:, feature_dim//self.num_modality:], self.poseNorm(self.layer_pose(landmarks)), self.layer_spf(c)), dim=1))
-            #x_visual = self.layer011(torch.cat((landmarks, self.layer_spf(c)), dim=1))
-        else:
-            x_visual = self.layer011(x[:, :feature_dim//self.num_modality])
+ 
+        #else:
+            #x_visual = self.layer011(x[:, :feature_dim//self.num_modality])
 
+        """
         if self.num_modality == 1:
             x = x_visual
         elif self.num_modality == 2:
+            #x_audio = self.layer012(x[:, :feature_dim//self.num_modality])
+            #gender = self.layer_identity(torch.cat((gender, self.layer_speakerEmb(speakerEmb)), dim=1))
+            #gender = self.layer_speakerEmb(gender)
+            #x_audio = self.layer012(torch.cat((x[:, :feature_dim//self.num_modality],  ps), dim=1))
+            #x_audio = self.layer012(torch.cat((x[:, :feature_dim//self.num_modality],  ps, pers), dim=1))
+            #x_audio = self.layer012(torch.cat((ps, pers), dim=1))
+            #x_audio = self.layer012(pers)
             x_audio = self.layer012(torch.cat((x[:, :feature_dim//self.num_modality], pers, ps), dim=1))
+            #x_audio = self.layer012(torch.cat((xH[:, :feature_dim//self.num_modality], ps), dim=1))
+            #x_audio = self.layer012(torch.cat((x[:, :feature_dim//self.num_modality], ps), dim=1))
+            #x_audio = self.layer012(torch.cat((x[:, :feature_dim//self.num_modality], gender), dim=1))
 
             x_visual = self.visualNorm(x_visual)
-            x_audio = self.audioNorm(x_audio)
+            #x_audio = self.audioNorm(x_audio)
 
-            x = x_visual + x_audio
+            #x = x_visual + x_audio
+            """
+            x = x_visual
+          
+
 
         x = self.batch01(x)
         x = self.relu(x)
@@ -173,7 +188,6 @@ class SPELLBYPLAYLAND(Module):
         x3 = self.layer33(x3, edge_index)
 
         out = x1+x2+x3
-        #print(out)
 
 
         if self.use_ref:
