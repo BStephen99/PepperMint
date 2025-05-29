@@ -20,7 +20,7 @@ from gravit.utils import formatter_multiclass
 
 def select_eval_tool(mode="pepper"):
     if mode == "byplay":
-        return byplay.get_eval_score, formatter_Multiclass.get_formatting_data_dict, formatter_Multiclass.get_formatted_preds
+        return byplay.get_eval_score, formatter_multiclass.get_formatting_data_dict, formatter_multiclass.get_formatted_preds
     elif mode == "wasd":
         return wasd.get_eval_score, formatter_WASD.get_formatting_data_dict, formatter_WASD.get_formatted_preds
     elif mode == "pepper":
@@ -61,14 +61,6 @@ def evaluate(cfg):
     num_val_graphs = len(val_loader)
     print("num val graphs",num_val_graphs)
 
-    # Init
-    #x_dummy = torch.tensor(np.array(np.random.rand(10, 1024), dtype=np.float32), dtype=torch.float32).to(device)
-    #node_source_dummy = np.random.randint(10, size=5)
-    #node_target_dummy = np.random.randint(10, size=5)
-    #edge_index_dummy = torch.tensor(np.array([node_source_dummy, node_target_dummy], dtype=np.int64), dtype=torch.long).to(device)
-    #signs = np.sign(node_source_dummy - node_target_dummy)
-    #edge_attr_dummy = torch.tensor(signs, dtype=torch.float32).to(device)
-    #model(x_dummy, edge_index_dummy, edge_attr_dummy, None)
 
     # Load the trained model
     logger.info('Loading the trained model')
@@ -147,39 +139,6 @@ def evaluate(cfg):
 
 
         
-            """
-            if cfg["gaze"] and cfg["gender"] and cfg["twoView"]:
-                logits = model(x, edge_index, edge_attr, xH=xH, c=c, cH=cH, ps=ps, pers=pers, gender=gender,
-                               gaze=gaze, landmarks=landmarks, landmarksH=landmarksH, speakerEmb=speakerEmb)
-
-            elif cfg["gaze"] and cfg["gender"]:
-                logits = model(x, edge_index, edge_attr, xH=None, c=c, cH=None, ps=ps, pers=pers, gender=gender,
-                               gaze=gaze, landmarks=landmarks, landmarksH=None, speakerEmb=speakerEmb)
-
-            elif cfg["gaze"] and cfg["twoView"]:
-                logits = model(x, edge_index, edge_attr, xH=xH, c=c, cH=cH, ps=ps, pers=pers, gender=None,
-                               gaze=gaze, landmarks=landmarks, landmarksH=landmarksH, speakerEmb=speakerEmb)
-
-            elif cfg["gender"] and cfg["twoView"]:
-                logits = model(x, edge_index, edge_attr, xH=xH, c=c, cH=cH, ps=ps, pers=pers, gender=gender,
-                               gaze=None, landmarks=landmarks, landmarksH=landmarksH, speakerEmb=speakerEmb)
-
-            elif cfg["gaze"]:
-                logits = model(x, edge_index, edge_attr, xH=None, c=c, cH=None, ps=ps, pers=pers, gender=None,
-                               gaze=gaze, landmarks=landmarks, landmarksH=None, speakerEmb=speakerEmb)
-
-            elif cfg["gender"]:
-                logits = model(x, edge_index, edge_attr, xH=None, c=c, cH=None, ps=ps, pers=pers, gender=gender,
-                               gaze=None, landmarks=landmarks, landmarksH=None, speakerEmb=speakerEmb)
-
-            elif cfg["twoView"]:
-                logits = model(x, edge_index, edge_attr, xH=xH, c=c, cH=cH, ps=ps, pers=pers, gender=None,
-                               gaze=None, landmarks=landmarks, landmarksH=landmarksH, speakerEmb=speakerEmb)
-
-            else:
-                logits = model(x, edge_index, edge_attr, xH=None, c=c, cH=None, ps=ps, pers=pers, gender=None,
-                               gaze=None, landmarks=landmarks, landmarksH=None, speakerEmb=speakerEmb)
-            """
 
 
             # Change the format of the model output

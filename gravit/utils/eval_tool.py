@@ -165,11 +165,7 @@ def merge_groundtruth_and_predictions(df_groundtruth, df_predictions):
            df_merged["entity_box_y2_back_prediction"]), True, False)
 
 
-  """if (~df_merged["bounding_box_correct"]).sum() > 0:
-    raise ValueError(
-        "Mismatch between groundtruth and predictions bounding boxes found at "
-        + str(list(df_merged[~df_merged["bounding_box_correct"]]["uid"])))
-  """
+
 
   return df_merged
 
@@ -223,7 +219,6 @@ def run_evaluation_asd(predictions, groundtruth):
   #df = df[df["set"]=="test"]
   #print(df.columns)
   df_groundtruth = load_csv(groundtruth, column_names=column_names+["landmarks_back", "set", "annotations"])
-  #df_groundtruth = load_csv(groundtruth, column_names=column_names)
   df_predictions = pd.DataFrame(predictions, columns=column_names+["score"])
   df_predictions.to_csv("predictions.csv")
   # Creates a unique id from frame timestamp and entity id.

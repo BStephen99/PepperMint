@@ -16,10 +16,11 @@ def get_formatting_data_dict(cfg):
     if 'AVA' in cfg['eval_type']:
         # Get a list of the feature files
         features = '_'.join(cfg['graph_name'].split('_')[:-3])
-        #list_data_files = sorted(glob.glob(os.path.join(root_data, f'features/{features}/val/*.pkl')))
-        #list_data_files = sorted(glob.glob("/home2/bstephenson/GraVi-T/data/features/RESNET18-TSM-AUG4/ours/220927*.pkl"))
-        list_data_files = sorted(glob.glob("/home2/bstephenson/GraVi-T/data/features/RESNET18-TSM-ALL2/test/*.pkl"))
-        #print("list", list_data_files)
+        list_data_files = []
+        for t in cfg["test_sets"]:
+            list_data_files = sorted(glob.glob(os.path.join(root_data, f'features/{features}/{t}/*.pkl')))
+        list_data_files = sorted(list_data_files)
+
 
         for data_file in list_data_files:
             video_id = os.path.splitext(os.path.basename(data_file))[0]

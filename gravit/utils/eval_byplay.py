@@ -80,17 +80,15 @@ def load_csv(filename, column_names):
   print(filename)
   #df = pd.read_csv(filename, header=None, names=column_names)
   df = pd.read_csv(filename, usecols=column_names)
-  #print(df.columns)
   df = df[~df["entity_id"].str.contains("pepper")]
   df = df[df["video_id"] != "220928_CLIP_13A"]
 
   print(df.columns)
   print(df.shape)
 
-  #df = df[df["label"] != "not_speaking"]
-  df = df[df["byplay"] != 0]
+
+  df = df[df["label_id"] != 0]
   df = df[df["set"]=="test"]
-  #df = df[df["label"]!=0]
   print(df.shape)
   #df = df[df["entity_box_x2"] != 0]
   #df = df[df["landmarks"] != "0"]
@@ -99,7 +97,6 @@ def load_csv(filename, column_names):
 
   # Creates a unique id from frame timestamp and entity id.f
   df["uid"] = (df["frame_timestamp"].round(2).map(str) + ":" + df["entity_id"])
-  #print(df["uid"].head(3))
   return df
 
 
@@ -171,12 +168,6 @@ def merge_groundtruth_and_predictions(df_groundtruth, df_predictions):
            df_merged["entity_box_y2_back_prediction"]), True, False)
 
 
-  """if (~df_merged["bounding_box_correct"]).sum() > 0:
-    raise ValueError(
-        "Mismatch between groundtruth and predictions bounding boxes found at "
-        + str(list(df_merged[~df_merged["bounding_box_correct"]]["uid"])))
-  """
-
   return df_merged
 
 
@@ -195,14 +186,8 @@ def calculate_precision_recall(df_merged):
 
   # Populates each row with 1 if this row is a true positive
   # (at its score level).
-  #df_merged["is_tp"] = np.where(
-    #  (df_merged["label_groundtruth"] == "SPEAKING_AUDIBLE") &
-    #  (df_merged["label_prediction"] == "SPEAKING_AUDIBLE"), 1, 0)
+
   df_merged["is_tp"] = np.where(
-  #(df_merged["label_groundtruth"].isin(["SPEAKING_NOT_AUDIBLE", "SPEAKING_AUDIBLE"])) &
-  #(df_merged["label_prediction"] == "SPEAKING_AUDIBLE"), 1, 0)
-  #(df_merged["label_groundtruth"].isin(["byplay", "speaking"])) &
-  #(df_merged["label_prediction"] == "SPEAKING_AUDIBLE"), 1, 0)
   (df_merged["label_groundtruth"].isin(["speaking_to_pepper"])) &
   (df_merged["label_prediction"] == "SPEAKING_AUDIBLE"), 1, 0)
 
@@ -217,8 +202,6 @@ def calculate_precision_recall(df_merged):
   # and including that row over all positives in the groundtruth dataset.
   df_merged["recall"] = df_merged["tp"] / all_positives
   print("saving results")
-  #df_merged.to_csv("/home2/bstephenson/GraVi-T/results/results_WASD_processed_with_AVA.csv")
-  #df_merged.to_csv("/home2/bstephenson/GraVi-T/results/results_WASD.csv")
   df_merged.to_csv("/home2/bstephenson/GraVi-T/results/results_feature.csv")
 
   return np.array(df_merged["precision"]), np.array(df_merged["recall"])
@@ -231,9 +214,7 @@ def run_evaluation_asd(predictions, groundtruth):
       "entity_box_x2_back", "entity_box_y2_back", "label", "entity_id"
   ]
   df = pd.read_csv(groundtruth, dtype={26: str})
-  #print(df.columns)
-  df_groundtruth = load_csv(groundtruth, column_names=column_names+["landmarks_back", "set", "byplay", "annotation_back", "annotation_high"])
-  #df_groundtruth = load_csv(groundtruth, column_names=column_names)
+  df_groundtruth = load_csv(groundtruth, column_names=column_names+["landmarks_back", "set", "annotations", "label_id"])
   df_predictions = pd.DataFrame(predictions, columns=column_names+["score"])
   df_predictions.to_csv("predictions.csv")
   # Creates a unique id from frame timestamp and entity id.
@@ -462,10 +443,7 @@ def get_eval_score(cfg, preds):
     str_score = ""
     if eval_type == 'AVA_ASD':
         #groundtruth = os.path.join(path_annts, 'ava_activespeaker_val_v1.0.csv')
-        #groundtruth = "/home2/bstephenson/WASD/WASD/csv/val_orig.csv"
-        #groundtruth = "/home2/bstephenson/WASD/WASD/csv/val_orig_gender_landmarks_speaker_emb_corrected.csv"
-        #groundtruth = '/home2/bstephenson/ASDNet/ava220927.csv'
-        groundtruth = "/home2/bstephenson/GraVi-T/annotations.csv"
+        groundtruth =  cfg["csv_path"] 
         score = run_evaluation_asd(preds, groundtruth)
         str_score = f'{score*100:.2f}%'
     elif eval_type == 'AVA_AL':

@@ -8,12 +8,12 @@ import shutil
 #expName = "ALL2"
 #expName = "Ours"
 #expName = "byplayGAZE"
-#expName= "byplayLAND"
+expName= "byplayLAND" 
 #expName = "byplay2Feats"
 #expName = "byplayAudioOnly"
 #expName = "byplayVisualOnly"
 #expName = "byplayGaze2views"
-expName = "byplayBasic"
+#expName = "byplayBasic"
 #expName = "speakEmb"
 #expName = "speakEmbWithWASD"
 #expName = "forward"
@@ -30,7 +30,7 @@ def run_training_multiple_times():
         "python3", 
         #"tools/train_context_reasoning.py", 
         #"tools/train_context_reasoning_gaze.py", 
-        "tools/train_context_reasoningMulticlass.py",
+        "tools/train_context_reasoning_multiclass.py",
         "--cfg", 
         "configs/active-speaker-detection/ava_active-speaker/SPELL_Byplay.yaml"
         #"configs/active-speaker-detection/ava_active-speaker/SPELL_SpeakEmb.yaml"
@@ -68,8 +68,7 @@ run_training_multiple_times()
 
 
 def evaluate_multiple_checkpoints():
-    base_cmd = "python3 tools/evaluateByplay.py --exp_name "+expName+" --eval_type AVA_ASD --modelNum"
-    #base_cmd = "python3 tools/evaluate.py --exp_name "+expName+" --eval_type AVA_ASD --mode pepper --modelNum"
+    base_cmd = "python3 tools/evaluate.py --exp_name "+expName+" --eval_type AVA_ASD --mode byplay --modelNum"
     results_dir = "/home2/bstephenson/GraVi-T/results"
     output_file = os.path.join(results_dir, "results_feature.csv")
 
