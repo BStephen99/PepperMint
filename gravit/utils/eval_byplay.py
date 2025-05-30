@@ -81,7 +81,7 @@ def load_csv(filename, column_names):
   #df = pd.read_csv(filename, header=None, names=column_names)
   df = pd.read_csv(filename, usecols=column_names)
   df = df[~df["entity_id"].str.contains("pepper")]
-  df = df[df["video_id"] != "220928_CLIP_13A"]
+  #df = df[df["video_id"] != "220928_CLIP_13A"]
 
   print(df.columns)
   print(df.shape)
@@ -173,11 +173,8 @@ def merge_groundtruth_and_predictions(df_groundtruth, df_predictions):
 
 def get_all_positives(df_merged):
   """Counts all positive examples in the groundtruth dataset."""
-  #return df_merged[df_merged["label_groundtruth"] ==
-    #               "SPEAKING_AUDIBLE"]["uid"].count()
-  #return df_merged[df_merged["label_groundtruth"] == "SPEAKING_AUDIBLE"]["uid"].count() + df_merged[df_merged["label_groundtruth"] == "SPEAKING_NOT_AUDIBLE"]["uid"].count()
   print(df_merged["label_groundtruth"].value_counts())
-  return df_merged[df_merged["label_groundtruth"] == "speaking_to_pepper"]["uid"].count() #+ df_merged[df_merged["label_groundtruth"] == "byplay"]["uid"].count()
+  return df_merged[df_merged["label_groundtruth"] == "speaking_to_pepper"]["uid"].count()
 
 
 def calculate_precision_recall(df_merged):

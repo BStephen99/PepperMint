@@ -9,7 +9,6 @@ from gravit.utils.logger import get_logger
 from gravit.models import build_model
 from gravit.datasets import GraphDataset
 
-#from gravit.utils.formatter_multiclass import get_formatting_data_dict, get_formatted_preds
 #from gravit.utils.eval_tool import get_eval_score
 #from gravit.utils.vs import avg_splits
 
@@ -60,14 +59,6 @@ def evaluate(cfg):
     num_val_graphs = len(val_loader)
     print("num val graphs",num_val_graphs)
 
-    # Init
-    #x_dummy = torch.tensor(np.array(np.random.rand(10, 1024), dtype=np.float32), dtype=torch.float32).to(device)
-    #node_source_dummy = np.random.randint(10, size=5)
-    #node_target_dummy = np.random.randint(10, size=5)
-    #edge_index_dummy = torch.tensor(np.array([node_source_dummy, node_target_dummy], dtype=np.int64), dtype=torch.long).to(device)
-    #signs = np.sign(node_source_dummy - node_target_dummy)
-    #edge_attr_dummy = torch.tensor(signs, dtype=torch.float32).to(device)
-    #model(x_dummy, edge_index_dummy, edge_attr_dummy, None)
 
     # Load the trained model
     logger.info('Loading the trained model')
@@ -102,7 +93,7 @@ def evaluate(cfg):
                     ps = torch.tensor([0]*c.shape[0], dtype=torch.float32).unsqueeze(1).to(device)
                     pers = torch.tensor([0]*c.shape[0], dtype=torch.float32).unsqueeze(1).to(device)
 
-            #logits = model(x, edge_index, edge_attr, c, ps, pers, speakerEmb=None)
+     
             logits = model(x, edge_index, edge_attr, xH=None, c=c, ps=ps,pers=pers, gender=None, gaze=None, landmarks=None, landmarksH=None, speakerEmb=speakerEmb)
 
 

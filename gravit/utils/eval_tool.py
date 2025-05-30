@@ -79,7 +79,6 @@ def load_csv(filename, column_names):
   print(filename)
   #df = pd.read_csv(filename, header=None, names=column_names)
   df = pd.read_csv(filename, usecols=column_names)
-  #print(df.columns)
   df = df[~df["entity_id"].str.contains("pepper")]
   df = df[df["video_id"] != "220928_CLIP_13A"]
 

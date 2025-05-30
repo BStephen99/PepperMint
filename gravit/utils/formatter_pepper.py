@@ -5,8 +5,6 @@ import pickle  #nosec
 import pandas as pd
 import numpy as np
 
-#addFeat = pd.read_csv("/home2/bstephenson/GraVi-T/avaAllaugmented.csv")
-#addFeat = pd.read_csv("/home2/bstephenson/GraVi-T/avaAllaugmentedGaze.csv")
 
 def check_row_exists(df, video_id, timestamp):
     # Filter the DataFrame based on video_id and timestamp
@@ -44,15 +42,8 @@ def get_formatting_data_dict(cfg):
         # Get a list of the feature files
         features = '_'.join(cfg['graph_name'].split('_')[:-3])
         print("features", features)
-        #print(os.path.join(root_data, f'features/{features}/WASDval/*'))
-        #list_data_files = sorted(glob.glob(os.path.join(root_data, f'features/{features}/val/*.pkl')))
-        #list_data_files = sorted(glob.glob(os.path.join(root_data, f'features/{features}/WASDval/*')))
-        #list_data_files = sorted(glob.glob(os.path.join(root_data, f'features/{features}/val_AVA/*.pkl')))
-        #list_data_files = sorted(glob.glob(os.path.join(root_data, f'features/{features}/val/*.pkl')))
-        #list_data_files = sorted(glob.glob(os.path.join(root_data, f'features/{features}/ours/*.pkl')))
-        #list_data_files = sorted(glob.glob(os.path.join(root_data, f'features/{features}/ours/220927*.pkl')))
         list_data_files = sorted(glob.glob(os.path.join(root_data, f'features/{features}/test/*.pkl')))
-        #list_data_files = sorted(glob.glob(os.path.join(root_data, f'features/{features}/ours/220928*.pkl'))) + sorted(glob.glob(os.path.join(root_data, f'features/{features}/ours/220929*.pkl'))) + sorted(glob.glob(os.path.join(root_data, f'features/{features}/ours/220926*.pkl')))
+     
 
         for data_file in list_data_files:
             video_id = os.path.splitext(os.path.basename(data_file))[0]
@@ -68,15 +59,9 @@ def get_formatting_data_dict(cfg):
 
             # Iterate over all the frame_timestamps and retrieve the required data for evaluation
             for fts in list_fts:
-                #frame_timestamp = f'{fts:g}'
                 frame_timestamp = f'{fts}'
                 for entity in data[frame_timestamp]:
-                    #print(entity['person_id'])
-                    #if 'landmarks' not in entity:
-                    #    print(type(entity['global_id']))
-                    #entity['landmarks'] = '0'
-                    #print(entity['person_id'])
-                    #print(entity['person_box'])
+  
                     data_dict[entity['global_id']] = {'video_id': video_id,
                                                       'frame_timestamp': frame_timestamp,
                                                       'person_box': entity['person_box'],
@@ -126,8 +111,6 @@ def get_formatted_preds(cfg, logits, g, data_dict):
     if 'AVA' in eval_type:
         # Compute scores from the logits
         scores_all = torch.sigmoid(logits.detach().cpu()).numpy()
-        #scores_all = torch.sigmoid(logits[:,1].detach().cpu()).numpy()
-        #scores_all = torch.sigmoid(logits[:,1].detach().cpu()).numpy()
 
         # Iterate over all the nodes and get the formatted predictions for evaluation
         for scores, global_id in zip(scores_all, g):

@@ -11,7 +11,7 @@ import shutil
 #expName= "byplayLAND" 
 #expName = "byplay2Feats"
 #expName = "byplayAudioOnly" 
-expName = "byplayVisualOnly"
+#expName = "byplayVisualOnly"
 #expName = "byplayGaze2views"
 #expName = "byplayBasic"
 #expName = "speakEmb"
@@ -22,6 +22,7 @@ expName = "byplayVisualOnly"
 #expName = "gaze"
 #expName = "basic"
 #expName = "2feats"
+expName = "byplayBasicASD"
 
 
 
@@ -35,7 +36,8 @@ def run_training_multiple_times():
         #"configs/active-speaker-detection/ava_active-speaker/SPELL_ByplayGaze.yaml"
         #"configs/active-speaker-detection/ava_active-speaker/SPELL_ByplayGazeLand.yaml"
         #"configs/active-speaker-detection/ava_active-speaker/SPELL_ByplayAudioOnly.yaml"
-        "configs/active-speaker-detection/ava_active-speaker/SPELL_ByplayVizOnly.yaml"
+        #"configs/active-speaker-detection/ava_active-speaker/SPELL_ByplayVizOnly.yaml"
+        "configs/active-speaker-detection/ava_active-speaker/SPELL_ByplayASD.yaml"
         #"configs/active-speaker-detection/ava_active-speaker/SPELL_ByplayLandmarks.yaml"
         #"configs/active-speaker-detection/ava_active-speaker/SPELL_SpeakEmb.yaml"
         #"configs/active-speaker-detection/ava_active-speaker/SPELL_Landmarks.yaml"
@@ -67,7 +69,7 @@ def run_training_multiple_times():
 
 
 
-run_training_multiple_times()
+#run_training_multiple_times()
 
 
 

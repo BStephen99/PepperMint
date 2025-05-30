@@ -11,3 +11,4 @@ from .spellSpeakEmbGend import SPELLSPEAKEMB
 from .spellBasicCausal import SPELLFORWARD
 from .spellGaze import SPELLGAZE
 from .spell2Feats import SPELL2FEATS
+from .spellByplayASD import SPELLBYPLAYASD

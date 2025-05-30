@@ -25,20 +25,17 @@ def get_formatting_data_dict(cfg):
         for data_file in list_data_files:
             video_id = os.path.splitext(os.path.basename(data_file))[0]
 
-            #print(data_file)
             with open(data_file, 'rb') as f:
                 data = pickle.load(f) #nosec
 
             # Get a list of frame_timestamps
             list_fts = sorted([float(frame_timestamp) for frame_timestamp in data.keys()])
-            #print(list_fts)
 
             # Iterate over all the frame_timestamps and retrieve the required data for evaluation
             for fts in list_fts:
                 #frame_timestamp = f'{fts:g}'
                 frame_timestamp = f'{fts}'
                 for entity in data[frame_timestamp]:
-                    #print("gi",entity['global_id'])
                     data_dict[entity['global_id']] = {'video_id': video_id,
                                                       'frame_timestamp': frame_timestamp,
                                                       'person_box': entity['person_box'],
@@ -67,17 +64,15 @@ def get_formatted_preds(cfg, logits, g, data_dict):
     preds = []
     if 'AVA' in eval_type:
         # Compute scores from the logits
-        #scores_all = torch.sigmoid(logits.detach().cpu()).numpy()
-        probs = torch.softmax(logits.detach().cpu(), dim=1)
-        scores_all = probs[:, 1].numpy()
+        if cfg["multiclass"] == False:
+            scores_all = torch.sigmoid(logits.detach().cpu()).numpy()
+        else:
+            probs = torch.softmax(logits.detach().cpu(), dim=1)
+            scores_all = probs[:, cfg["classIndex"]].numpy()
 
-        #scores_all = torch.sigmoid(logits[:,2].detach().cpu()).numpy()
 
-
-        #print("keys", data_dict.keys())
         # Iterate over all the nodes and get the formatted predictions for evaluation
         for scores, global_id in zip(scores_all, g):
-            #print(global_id)
             data = data_dict[global_id]
             if "pepper" in data['person_id']:
                 continue
@@ -92,7 +87,6 @@ def get_formatted_preds(cfg, logits, g, data_dict):
                 person_id = data['person_id']
                 score = scores.item()
                 pred = [video_id, frame_timestamp, x1, y1, x2, y2, 'SPEAKING_AUDIBLE', person_id, score]
-                #print(pred)
                 preds.append(pred)
 
             elif eval_type == 'AVA_AL':
