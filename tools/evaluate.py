@@ -77,7 +77,6 @@ def evaluate(cfg):
     # Load the feature files to properly format the evaluation results
     logger.info('Retrieving the formatting dictionary')
     data_dict = get_formatting_data_dict(cfg)
-    #print(data_dict.keys())
 
     # Run the evaluation process
     logger.info('Evaluation process started')
@@ -106,8 +105,9 @@ def evaluate(cfg):
                     if cfg["twoView"]:
                         xH = data.xH.to(device)
                         cH = data.ch.to(device)
-                        landmarksHigh = data.landmarks_high.to(device)
-                    #numPredSpeakers = data.numPredSpeakers.to(device)
+                        landmarksH = data.landmarks_high.to(device)
+                    if cfg["numPredSpeakers"]:
+                        numPredSpeakers = data.numPredSpeakers.to(device)
                     if cfg["gaze"]:
                         gaze = data.gaze.to(device)
                 except:

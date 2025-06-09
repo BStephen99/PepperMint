@@ -102,7 +102,7 @@ df1 = pd.read_csv('/home2/bstephenson/GraVi-T/annotations.csv')
 print(df1.shape)
 df1 = df1[df1["video_id"]!="220928_CLIP_13A"]
 print(df1.shape)
-df1 = df1[df1["set"]=="train"]
+df1 = df1[df1["set"]=="test"]
 df1["landmarks_high"] = df1["landmarks_high"].fillna("0")
 df1["landmarks_back"] = df1["landmarks_back"].fillna("0")
 
@@ -113,13 +113,13 @@ for v in df1["video_id"].unique():
     #    continue
 
     vdf1 = df1[df1["video_id"] == v]
-    df2 = pd.read_csv(f'/home2/bstephenson/active-speakers-context/oursBackTrain/{v}.csv', header=None)
+    df2 = pd.read_csv(f'/home2/bstephenson/active-speakers-context/oursBackTest/{v}.csv', header=None)
     #df2 = pd.read_csv(f'/home2/bstephenson/active-speakers-context/justOurs/oursBackTest/{v}.csv', header=None)
     #df2 = pd.read_csv(f'/home2/bstephenson/active-speakers-context/justOurs/AVAoursBackTest/{v}.csv', header=None)
     #df2 = pd.read_csv(f'/home2/bstephenson/active-speakers-context/justOurs/WASDoursBackTest/{v}.csv', header=None)
     
 
-    df3_path = f'/home2/bstephenson/active-speakers-context/oursHighTrain/{v}.csv'
+    df3_path = f'/home2/bstephenson/active-speakers-context/oursHighTest/{v}.csv'
     #df3_path = f'/home2/bstephenson/active-speakers-context/justOurs/oursHighTest/{v}.csv'
     #df3_path = f'/home2/bstephenson/active-speakers-context/justOurs/AVAoursHighTest/{v}.csv'
     #df3_path = f'/home2/bstephenson/active-speakers-context/justOurs/WASDoursHighTest/{v}.csv'
@@ -131,7 +131,7 @@ for v in df1["video_id"].unique():
         # Create empty df3 with expected number of columns (at least 11, since columns[10] is accessed)
         df3 = pd.DataFrame(columns=list(range(12)))  # Adjust number of columns if needed
 
-    filename = f"/home2/bstephenson/GraVi-T/data/features/RESNET18-TSM-ALL2/train/{v}.pkl"
+    filename = f"/home2/bstephenson/GraVi-T/data/features/RESNET18-TSM-ALL2/test/{v}.pkl"
     #filename = f"/home2/bstephenson/GraVi-T/data/features/RESNET18-TSM-OURS/test/{v}.pkl"
     #filename = f"/home2/bstephenson/GraVi-T/data/features/RESNET18-TSM-AVA/test/{v}.pkl"
     #filename = f"/home2/bstephenson/GraVi-T/data/features/RESNET18-TSM-WASD/test/{v}.pkl"

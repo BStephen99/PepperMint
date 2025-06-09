@@ -93,7 +93,6 @@ def train(cfg):
             #data.y[data.ps == 1] = 3
             #x, y = data.x.to(device), data.y.to(device) #using
             x, y = data.x.to(device), data.y.squeeze(dim=1).to(device)
-            #xH = data.xH.to(device)
             #y = y.long()
 
             edge_index = data.edge_index.to(device)
@@ -101,7 +100,6 @@ def train(cfg):
             c = None
             if cfg['use_spf']:
                 c = data.c.to(device)
-                #cH = data.ch.to(device)
                 try:
                     ps = data.ps.to(device)
                     pers = data.perSpeak.to(device)
@@ -112,9 +110,13 @@ def train(cfg):
                         landmarks = data.landmarks.to(device) 
                     else: 
                         landmarks = data.landmarks_back.to(device)
-                        #landmarksHigh = data.landmarks_high.to(device)
                     
-                    #landmarksHigh = data.landmarks_high.to(device)
+                    if cfg["twoView"]:
+                        xH = data.xH.to(device)
+                        cH = data.ch.to(device)
+                        landmarksH = data.landmarks_high.to(device)
+                    
+        
                     #numPredSpeakers = data.numPredSpeakers.to(device)
                     if cfg["gaze"]:
                         gaze = data.gaze.to(device)
@@ -195,14 +197,12 @@ def val(val_loader, use_spf, model, device, loss_func):
             #data.y[data.ps == 1] = 3
             #x, y = data.x.to(device), data.y.to(device)
             x, y = data.x.to(device), data.y.squeeze(dim=1).to(device)
-            #xH = data.xH.to(device)
             #y = y.long()
             edge_index = data.edge_index.to(device)
             edge_attr = data.edge_attr.to(device)
             c = None
             if use_spf:
                 c = data.c.to(device)
-                #cH = data.ch.to(device)
                 ps = data.ps.to(device)
                 pers = data.perSpeak.to(device)
                 speakerEmb = data.speakerEmb.to(device)
@@ -212,7 +212,11 @@ def val(val_loader, use_spf, model, device, loss_func):
                         landmarks = data.landmarks.to(device) 
                 else: 
                         landmarks = data.landmarks_back.to(device)
-                        #landmarksHigh = data.landmarks_high.to(device)
+
+                if cfg["twoView"]:
+                        xH = data.xH.to(device)
+                        cH = data.ch.to(device)
+                        landmarksH = data.landmarks_high.to(device)
 
                 if cfg["gaze"]:
                         gaze = data.gaze.to(device)

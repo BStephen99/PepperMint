@@ -1,5 +1,5 @@
 exp_name: byplayGaze2views
-model_name: SPELLBYPLAYGAZE2VIEWS
+model_name: SPELLBYPLAYGAZE    #SPELLBYPLAYGAZE2VIEWS
 graph_name: RESNET18-TSM-ALL2_csi_30.0_0.9
 loss_name: ce
 use_spf: True
@@ -16,9 +16,15 @@ lr: 0.0005
 wd: 0
 batch_size: 16
 sch_param: 10
-num_epoch: 90
+num_epoch: 70
+
+training_sets: ["train"]
+test_sets: ["test"]
 
 gender: False
-gaze: False
-twoView: False
+gaze: True
+twoView: True
 numPredSpeakers: False
+multiclass: True
+
+csv_path: "/home2/bstephenson/GraVi-T/annotations.csv"
