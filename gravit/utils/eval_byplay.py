@@ -81,18 +81,14 @@ def load_csv(filename, column_names):
   #df = pd.read_csv(filename, header=None, names=column_names)
   df = pd.read_csv(filename, usecols=column_names)
   df = df[~df["entity_id"].str.contains("pepper")]
-  #df = df[df["video_id"] != "220928_CLIP_13A"]
 
   print(df.columns)
   print(df.shape)
 
-
   df = df[df["label_id"] != 0]
   df = df[df["set"]=="test"]
   print(df.shape)
-  #df = df[df["entity_box_x2"] != 0]
-  #df = df[df["landmarks"] != "0"]
-  #df = df[(df["entity_box_y2"] != 0) | (df["landmarks"] != "0")]
+
 
 
   # Creates a unique id from frame timestamp and entity id.f

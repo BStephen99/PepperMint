@@ -166,6 +166,7 @@ def generate_graph(data_file, args, path_graphs, sp):
                 landmarks_back  = []
                 landmarks_high  = []
                 numPredSpeakers = []
+                laugh           = []
 
 
 
@@ -181,12 +182,19 @@ def generate_graph(data_file, args, path_graphs, sp):
                         if "pepper" in entity['person_id'] and entity['label'] == 1:
                             pepperSpeaking.append(np.array([1]))
                             personSpeaking.append(np.array([1]))
-                        elif entity['label'] == 1 or entity['label'] == 2:
+                        elif (entity['label'] == 1 or entity['label'] == 2):
                             pepperSpeaking.append(np.array([0]))
                             personSpeaking.append(np.array([1]))
                         else:
                             pepperSpeaking.append(np.array([0]))
                             personSpeaking.append(np.array([0]))
+
+                        """
+                        if args.laugh_speech == False:
+                            personSpeaking.pop()
+                            personSpeaking.append(np.array([0]))
+                        """
+
 
                         feature.append(entity['feature'])
                         featureHigh.append(entity['featureHigh'])
@@ -200,6 +208,7 @@ def generate_graph(data_file, args, path_graphs, sp):
                         label.append(entity['label'])
             
                         gaze.append(processGaze(entity['gaze']))
+                        laugh.append(entity['laugh'])
 
                         person_id.append(entity['person_id'])
                         global_id.append(entity['global_id'])
@@ -211,6 +220,7 @@ def generate_graph(data_file, args, path_graphs, sp):
                             landmarks_high.append(processLandmarks(entity['landmarks_high']))
                         elif 'landmarks' in entity:
                             landmarks_back.append(processLandmarks(entity['landmarks']))
+
                         
          
                         if args.pca == True: 
@@ -268,6 +278,7 @@ def generate_graph(data_file, args, path_graphs, sp):
                       edge_index = torch.tensor(np.array([node_source, node_target], dtype=np.int64), dtype=torch.long),
                       edge_attr = torch.tensor(edge_attr, dtype=torch.float32),
                       speakerEmb = torch.tensor(np.array(speakerEmb, dtype=np.float32), dtype=torch.float32),
+                      laugh = torch.tensor(np.array(laugh, dtype=np.float32), dtype=torch.float32),
                       y = torch.tensor(np.array(label, dtype=np.float32), dtype=torch.float32))
 
 
@@ -294,6 +305,7 @@ if __name__ == "__main__":
     parser.add_argument('--time_span',     type=float, help='Maximum time span for each graph in seconds', required=True)
     parser.add_argument('--tau',           type=float, help='Maximum time difference between neighboring nodes in seconds', required=True)
     parser.add_argument('--pca',           type=bool, default=True, help='Perform pca on speaker embeddings', required=False)
+    #parser.add_argument('--laugh_speech',  type=bool, default=True, help='Is laughter considered speech?', required=False)
 
     args = parser.parse_args()
 
@@ -306,7 +318,6 @@ if __name__ == "__main__":
         path_graphs = os.path.join(args.root_data, f'graphs/{args.features}_{args.ec_mode}_{args.time_span}_{args.tau}/{sp}')
         os.makedirs(path_graphs, exist_ok=True)
 
-        #list_data_files = sorted(glob.glob(os.path.join(args.root_data, f'features/{args.features}/{sp}/220929*.pkl')))[:]
         list_data_files = sorted(glob.glob(os.path.join(args.root_data, f'features/{args.features}/{sp}/*.pkl')))[:]
         print(len(list_data_files))
 

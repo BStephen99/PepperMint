@@ -80,10 +80,10 @@ def load_csv(filename, column_names):
   #df = pd.read_csv(filename, header=None, names=column_names)
   df = pd.read_csv(filename, usecols=column_names)
   df = df[~df["entity_id"].str.contains("pepper")]
-  df = df[df["video_id"] != "220928_CLIP_13A"]
 
+  df.loc[df['laugh_speaker'] == 1, 'label'] = 'not_speaking'
   print(df.shape)
-  #df = df[df["byplay"] != 0]
+
   df = df[df["set"]=="test"]
   print(df.shape)
 
@@ -181,16 +181,12 @@ def calculate_precision_recall(df_merged):
 
   # Populates each row with 1 if this row is a true positive
   # (at its score level).
-  #df_merged["is_tp"] = np.where(
-    #  (df_merged["label_groundtruth"] == "SPEAKING_AUDIBLE") &
-    #  (df_merged["label_prediction"] == "SPEAKING_AUDIBLE"), 1, 0)
+  # "SPEAKING_NOT_AUDIBLE", "SPEAKING_AUDIBLE"
   df_merged["is_tp"] = np.where(
-  #(df_merged["label_groundtruth"].isin(["SPEAKING_NOT_AUDIBLE", "SPEAKING_AUDIBLE"])) &
-  #(df_merged["label_prediction"] == "SPEAKING_AUDIBLE"), 1, 0)
   (df_merged["label_groundtruth"].isin(["byplay", "speaking", "speaking_to_pepper", "speaking_to_human"])) &
   (df_merged["label_prediction"] == "SPEAKING_AUDIBLE"), 1, 0)
-  #(df_merged["label_groundtruth"].isin(["speaking_to_pepper"])) &
-  #(df_merged["label_prediction"] == "SPEAKING_AUDIBLE"), 1, 0)
+  
+
 
   # Counts true positives up to and including that row.
   df_merged["tp"] = df_merged["is_tp"].cumsum()
@@ -214,10 +210,7 @@ def run_evaluation_asd(predictions, groundtruth):
       "video_id", "frame_timestamp", "entity_box_x1_back", "entity_box_y1_back",
       "entity_box_x2_back", "entity_box_y2_back", "label", "entity_id"
   ]
-  #df = pd.read_csv(groundtruth)
-  #df = df[df["set"]=="test"]
-  #print(df.columns)
-  df_groundtruth = load_csv(groundtruth, column_names=column_names+["landmarks_back", "set", "annotations"])
+  df_groundtruth = load_csv(groundtruth, column_names=column_names+["landmarks_back", "set", "annotations", "laugh_speaker"])
   df_predictions = pd.DataFrame(predictions, columns=column_names+["score"])
   df_predictions.to_csv("predictions.csv")
   # Creates a unique id from frame timestamp and entity id.

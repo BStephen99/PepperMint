@@ -1,4 +1,4 @@
-exp_name: basic
+exp_name: basicNoLaugh
 model_name: SPELL
 graph_name: RESNET18-TSM-ALL2_csi_30.0_0.9
 loss_name: bce_logit

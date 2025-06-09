@@ -86,8 +86,8 @@ def train(cfg):
 
             #train ASD or addressee estimation
             data.y[data.y == 2] = 1 #using
-            data.y[data.y == 3] = 1
-            data.y[data.y == 5] = 1
+            data.y[data.laugh == 1] = 0
+            #data.y[data.y == 5] = 1
             #data.y[data.y == 2] = 0
             #x, y = data.x.to(device), data.y.to(device) #using
             x, y = data.x.to(device), data.y.squeeze(dim=1).to(device)
@@ -193,8 +193,9 @@ def val(val_loader, use_spf, model, device, loss_func):
     with torch.no_grad():
         for data in val_loader:
             data.y[data.y == 2] = 1
-            data.y[data.y == 3] = 1
-            data.y[data.y == 5] = 1
+            data.y[data.laugh == 1] = 0
+            #data.y[data.y == 3] = 1
+            #data.y[data.y == 5] = 1
             #data.y[data.y == 2] = 0
             #x, y = data.x.to(device), data.y.to(device)
             x, y = data.x.to(device), data.y.squeeze(dim=1).to(device)
@@ -218,10 +219,13 @@ def val(val_loader, use_spf, model, device, loss_func):
                         landmarks = data.landmarks.to(device) 
                 else: 
                         landmarks = data.landmarks_back.to(device)
-                        #landmarksHigh = data.landmarks_high.to(device)
+
+
+                if cfg["twoView"]:
+                    landmarksHigh = data.landmarks_high.to(device)
                 
-                #landmarks = data.landmarks_back.to(device)
-                #landmarksHigh = data.landmarks_high.to(device)
+               
+                
                 #numPredSpeakers = data.numPredSpeakers.to(device)
                 #gender = torch.tensor([0]*c.shape[0], dtype=torch.float32).unsqueeze(1).to(device)
 
@@ -244,25 +248,6 @@ def val(val_loader, use_spf, model, device, loss_func):
             }
 
             logits = model(**kwargs)
-
-
-
-        
-            #logits = model(x, edge_index, edge_attr, c, ps,dinoEmb=dinoEmb, speakerEmb=speakerEmb)
-            #logits = model(x, edge_index, edge_attr, c, ps, gender=gender,gaze=gaze, landmarks=landmarks, speakerEmb=speakerEmb, numPredSpeakers=numPredSpeakers)
-            #logits = model(x, edge_index, edge_attr, c, ps, gender=gender,gaze=None, landmarks=None, speakerEmb=speakerEmb, numPredSpeakers=None)
-            #logits = model(x, edge_index, edge_attr, c, ps, pers=pers, gender=gender, landmarks=landmarks, speakerEmb=speakerEmb)
-            #logits = model(x, xH, edge_index, edge_attr, c, cH, ps,pers=pers, gender=gender, landmarks=landmarks, landmarksH=landmarksHigh, speakerEmb=speakerEmb)
-            """
-            if cfg["gender"]:
-                logits = model(x, edge_index, edge_attr, xH=None, c=c, cH=None, ps=ps,pers=pers, gaze=None, gender=gender, landmarks=landmarks, landmarksH=None, speakerEmb=speakerEmb)
-            else:
-                logits = model(x, edge_index, edge_attr, xH=None, c=c, cH=None, ps=ps,pers=pers, gaze=None, gender=None, landmarks=landmarks, landmarksH=None, speakerEmb=speakerEmb)
-            """
-            #logits = model(x, edge_index, edge_attr, xH=xH, c=c, cH=cH, ps=ps,pers=pers, gaze=gaze, gender=gender, landmarks=landmarks, landmarksH=landmarksHigh, speakerEmb=speakerEmb)
-            #logits = model(x, edge_index, edge_attr, xH=None, c=c, cH=None, ps=ps,pers=pers, gaze=None, gender=None, landmarks=None, landmarksH=None, speakerEmb=speakerEmb)
-            #logits = model(x, edge_index, edge_attr, c, ps, gender=gender, gaze=gaze, landmarks=landmarks, speakerEmb=speakerEmb, numPredSpeakers=numPredSpeakers)
-            #logits = model(x, edge_index, edge_attr, c, ps, pers=pers, gender=gender, gaze=gaze, landmarks=landmarks, speakerEmb=speakerEmb, numPredSpeakers=numPredSpeakers, bodyEmb=bodyEmb)
             
       
             loss = loss_func(logits.squeeze(), y)

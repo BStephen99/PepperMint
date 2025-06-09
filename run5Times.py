@@ -22,22 +22,23 @@ import shutil
 #expName = "gaze"
 #expName = "basic"
 #expName = "2feats"
-expName = "byplayBasicASD"
+#expName = "byplayBasicASD"
+expName = "basicNoLaugh"
 
 
 
 def run_training_multiple_times():
     command = [
         "python3", 
-        #"tools/train_context_reasoning.py", 
+        "tools/train_context_reasoning.py", 
         #"tools/train_context_reasoning_gaze.py", 
-        "tools/train_context_reasoning_multiclass.py",
+        #"tools/train_context_reasoning_multiclass.py",
         "--cfg", 
         #"configs/active-speaker-detection/ava_active-speaker/SPELL_ByplayGaze.yaml"
         #"configs/active-speaker-detection/ava_active-speaker/SPELL_ByplayGazeLand.yaml"
         #"configs/active-speaker-detection/ava_active-speaker/SPELL_ByplayAudioOnly.yaml"
         #"configs/active-speaker-detection/ava_active-speaker/SPELL_ByplayVizOnly.yaml"
-        "configs/active-speaker-detection/ava_active-speaker/SPELL_ByplayASD.yaml"
+        #"configs/active-speaker-detection/ava_active-speaker/SPELL_ByplayASD.yaml"
         #"configs/active-speaker-detection/ava_active-speaker/SPELL_ByplayLandmarks.yaml"
         #"configs/active-speaker-detection/ava_active-speaker/SPELL_SpeakEmb.yaml"
         #"configs/active-speaker-detection/ava_active-speaker/SPELL_Landmarks.yaml"
@@ -45,7 +46,7 @@ def run_training_multiple_times():
         #"configs/active-speaker-detection/ava_active-speaker/SPELL_Gaze.yaml"
         #"configs/active-speaker-detection/ava_active-speaker/SPELL_default.yaml"
         #"configs/active-speaker-detection/ava_active-speaker/SPELL_ours.yaml"
-        #"configs/active-speaker-detection/ava_active-speaker/SPELL_basic.yaml"
+        "configs/active-speaker-detection/ava_active-speaker/SPELL_basic.yaml"
         #"configs/active-speaker-detection/ava_active-speaker/SPELL_forward.yaml"
     ]
     ckpt_path = "/home2/bstephenson/GraVi-T/results/"+expName+"/ckpt_best.pt"
@@ -74,7 +75,7 @@ def run_training_multiple_times():
 
 
 def evaluate_multiple_checkpoints():
-    base_cmd = "python3 tools/evaluate.py --exp_name "+expName+" --eval_type AVA_ASD --mode byplay --modelNum"
+    base_cmd = "python3 tools/evaluate.py --exp_name "+expName+" --eval_type AVA_ASD --mode pepper --modelNum"
     results_dir = "/home2/bstephenson/GraVi-T/results"
     output_file = os.path.join(results_dir, "results_feature.csv")
 
