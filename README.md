@@ -22,6 +22,38 @@ organization={Springer}
 
 
 
+exp_name: byplayGaze2views
+model_name: SPELLBYPLAYGAZE   
+graph_name: RESNET18-TSM-ALL2_csi_30.0_0.9
+loss_name: ce  , bce_logit
+use_spf: True
+use_ref: False
+num_modality: 2
+channel1: 64
+channel2: 16
+
+proj_dim: 64
+final_dim: 4
+num_att_heads: 0
+dropout: 0.3
+lr: 0.0005
+wd: 0
+batch_size: 16
+sch_param: 10
+num_epoch: 70
+
+training_sets: ["train"]
+test_sets: ["test"]
+
+gender: False
+gaze: True
+twoView: True
+numPredSpeakers: False
+multiclass: True
+classIndex: 1  # multiclass model
+
+csv_path: "/home2/bstephenson/GraVi-T/annotations.csv"
+
 positiveLabels:  ["speaking_to_pepper", "speaking_to_human"] #labels for the positive classes in the csv
 genderClass: False  #use gender predictor model
 

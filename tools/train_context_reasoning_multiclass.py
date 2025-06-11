@@ -207,7 +207,7 @@ def val(val_loader, use_spf, model, device, loss_func):
                 pers = data.perSpeak.to(device)
                 speakerEmb = data.speakerEmb.to(device)
                 
-                #gender = data.gender.to(device)
+           
                 if "landmarks" in data:
                         landmarks = data.landmarks.to(device) 
                 else: 
@@ -222,6 +222,8 @@ def val(val_loader, use_spf, model, device, loss_func):
                         gaze = data.gaze.to(device)
                 if cfg["gender"]:
                         gender = data.gender.to(device)
+                if cfg["numPredSpeakers"]:
+                        numPredSpeakers = data.numPredSpeakers.to(device)
                 
      
             kwargs = {

@@ -111,6 +111,14 @@ def train(cfg):
                     if cfg["gender"]:
                         gender = data.gender.to(device)
 
+                    if cfg["twoView"]:
+                        xH = data.xH.to(device)
+                        cH = data.ch.to(device)
+                        landmarksH = data.landmarks_high.to(device)
+                    
+                    if cfg["numPredSpeakers"]:
+                        numPredSpeakers = data.numPredSpeakers.to(device)
+
 
                 except Exception as e:
                     print(f"An error occurred: {e}")
@@ -204,9 +212,16 @@ def val(val_loader, use_spf, model, device, loss_func):
 
                 landmarks = data.landmarks.to(device)
                 landmarksHigh = data.landmarks_high.to(device)
+
+                if cfg["twoView"]:
+                        xH = data.xH.to(device)
+                        cH = data.ch.to(device)
+                        landmarksH = data.landmarks_high.to(device)
+                    
+                if cfg["numPredSpeakers"]:
+                        numPredSpeakers = data.numPredSpeakers.to(device)
                 
-    
-                #numPredSpeakers = data.numPredSpeakers.to(device)
+
                 gaze = data.gaze.to(device)
 
 

@@ -86,7 +86,9 @@ def train(cfg):
 
             #train ASD or addressee estimation
             data.y[data.y == 2] = 1 #using
-            data.y[data.laugh == 1] = 0
+
+            if cfg["laugh_not_speech"]:
+                data.y[data.laugh == 1] = 0
             #data.y[data.y == 5] = 1
             #data.y[data.y == 2] = 0
             #x, y = data.x.to(device), data.y.to(device) #using
@@ -98,9 +100,8 @@ def train(cfg):
             edge_attr = data.edge_attr.to(device)
             c = None
             if cfg['use_spf']:
-                #print(data.c.shape)
                 c = data.c.to(device)
-                #cH = data.ch.to(device)
+
                 try:
                     ps = data.ps.to(device)
                     pers = data.perSpeak.to(device)
@@ -116,10 +117,16 @@ def train(cfg):
                         landmarks = data.landmarks.to(device) 
                     else: 
                         landmarks = data.landmarks_back.to(device)
-                        #landmarksHigh = data.landmarks_high.to(device)
+                
+
+                    if cfg["twoView"]:
+                        xH = data.xH.to(device)
+                        cH = data.ch.to(device)
+                        landmarksH = data.landmarks_high.to(device)
                     
-                    #landmarksHigh = data.landmarks_high.to(device)
-                    #numPredSpeakers = data.numPredSpeakers.to(device)
+                    if cfg["numPredSpeakers"]:
+                        numPredSpeakers = data.numPredSpeakers.to(device)
+
                 except Exception as e:
                     print(f"An error occurred: {e}")
                     print("********************************************")
@@ -166,14 +173,12 @@ def train(cfg):
 
         # Get the validation loss
         loss_val = val(val_loader, cfg['use_spf'], model, device, loss_func_val)
-        #print(loss_val)
 
         # Save the best-performing checkpoint
 
         if loss_val < min_loss_val:
             min_loss_val = loss_val
             epoch_best = epoch
-            #torch.save(model.state_dict(), os.path.join(path_result, 'ckpt_best.pt'))
             torch.save(model.state_dict(), os.path.join(path_result, 'ckpt_best.pt'))
         torch.save(model.state_dict(), os.path.join(path_result, 'ckpt_last.pt'))
 
@@ -193,7 +198,9 @@ def val(val_loader, use_spf, model, device, loss_func):
     with torch.no_grad():
         for data in val_loader:
             data.y[data.y == 2] = 1
-            data.y[data.laugh == 1] = 0
+
+            if cfg["laugh_not_speech"]:
+                data.y[data.laugh == 1] = 0
             #data.y[data.y == 3] = 1
             #data.y[data.y == 5] = 1
             #data.y[data.y == 2] = 0
@@ -222,12 +229,15 @@ def val(val_loader, use_spf, model, device, loss_func):
 
 
                 if cfg["twoView"]:
-                    landmarksHigh = data.landmarks_high.to(device)
+                        xH = data.xH.to(device)
+                        cH = data.ch.to(device)
+                        landmarksH = data.landmarks_high.to(device)
+
+
+                if cfg["numPredSpeakers"]:
+                        numPredSpeakers = data.numPredSpeakers.to(device)
                 
                
-                
-                #numPredSpeakers = data.numPredSpeakers.to(device)
-                #gender = torch.tensor([0]*c.shape[0], dtype=torch.float32).unsqueeze(1).to(device)
 
 
             kwargs = {
