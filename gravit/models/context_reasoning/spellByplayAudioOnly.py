@@ -53,19 +53,11 @@ class SPELLBYPLAYAUDIOONLY(Module):
 
         if self.use_spf:
             self.layer_spf = Linear(-1, cfg['proj_dim']) # projection layer for spatial features
-            #self.layer_spf2 = Linear(-1, cfg['proj_dim'])
             self.layer_gaze = Linear(-1, cfg['proj_dim'])
             self.layer_pose = Linear(-1, cfg['proj_dim'])
-            #self.poseNorm = BatchNorm(cfg['proj_dim'])
-            #self.layer_ps = Linear(-1, cfg['proj_dim'])
             self.layer_speakerEmb = Linear(-1, 10)
             self.layer_gender = Embedding(3, 5)
             self.speakerNorm = BatchNorm(20)
-            self.coorPred = coorPred
-            self.LaughClassifier = laugh
-            self.laughNorm = BatchNorm(128)
-            #self.dropoutEmb = Dropout(dropout)
-            #self.layer_identity = Linear(-1, channels[0])
             self.visualNorm = BatchNorm(cfg['proj_dim'])
             self.audioNorm = BatchNorm(cfg['proj_dim'])
 
@@ -103,8 +95,6 @@ class SPELLBYPLAYAUDIOONLY(Module):
 
     def forward(self, x, edge_index, edge_attr, xH=None, c=None, cH=None, ps=None, pers=None, gender=None, gaze=None, landmarks=None, landmarksH=None, dinoEmb=None,speakerEmb=None, numPredSpeakers=None):
         feature_dim = x.shape[1]
-
-        gender = self.layer_gender(gender.long()).squeeze(1)
 
 
         x_audio = self.layer012(torch.cat((x[:, :feature_dim//self.num_modality], pers, ps), dim=1))

@@ -50,6 +50,7 @@ class SPELLBYPLAY(Module):
         final_dim = cfg['final_dim']
         num_att_heads = cfg['num_att_heads']
         dropout = cfg['dropout']
+        self.twoView = cfg['twoView']
 
         if self.use_spf:
             self.layer_spf = Linear(-1, cfg['proj_dim']) # projection layer for spatial features
@@ -97,32 +98,22 @@ class SPELLBYPLAY(Module):
     def forward(self, x, edge_index, edge_attr, xH=None, c=None, cH=None, ps=None, pers=None, gender=None, gaze=None, landmarks=None, landmarksH=None, dinoEmb=None,speakerEmb=None, numPredSpeakers=None):
         feature_dim = x.shape[1]
 
-        #gender = self.layer_gender(gender.long()).squeeze(1)
-
-
 
         if self.use_spf:
   
-            x_visual = self.layer011(torch.cat((x[:, feature_dim//self.num_modality:], self.layer_spf(c)), dim=1))
-   
-            """
-            x_visual = self.layer011(torch.cat((
+            if self.twoView == False:
+                x_visual = self.layer011(torch.cat((x[:, feature_dim//self.num_modality:], self.layer_spf(c)), dim=1))
+            else:
+            
+                x_visual = self.layer011(torch.cat((
                             x[:, feature_dim // self.num_modality:], 
                             xH[:, feature_dim // self.num_modality:], 
-                            self.layer_pose(torch.cat((landmarks, landmarksH), dim=1)), 
                             self.layer_spf(torch.cat((c, cH), dim=1))
                         ), dim=1))
             
-            x_visual = self.layer011(torch.cat((
-                            xH[:, feature_dim // self.num_modality:], 
-                            self.layer_pose(landmarksH), 
-                            self.layer_spf(cH)
-                        ), dim=1))  
-            """
-            #x_visual = self.layer011(torch.cat((x[:, feature_dim//self.num_modality:], self.poseNorm(self.layer_pose(landmarks)), self.layer_spf(c)), dim=1))
-            #x_visual = self.layer011(torch.cat((landmarks, self.layer_spf(c)), dim=1))
-        #else:
-            #x_visual = self.layer011(x[:, :feature_dim//self.num_modality])
+      
+        else:
+            x_visual = self.layer011(torch.cat((x[:, feature_dim//self.num_modality:], self.layer_spf(c)), dim=1))
 
         if self.num_modality == 1:
             x = x_visual

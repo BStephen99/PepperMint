@@ -110,7 +110,7 @@ class SPELLBYPLAYLAND(Module):
 
        
         else:
-            x_visual = self.layer011(x[:, :feature_dim//self.num_modality])
+            x_visual = self.layer011(torch.cat((x[:, feature_dim//self.num_modality:], landmarks), dim=1))
 
         if self.num_modality == 1:
             x = x_visual

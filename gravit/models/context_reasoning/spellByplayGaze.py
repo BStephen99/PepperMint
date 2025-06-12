@@ -99,6 +99,8 @@ class SPELLBYPLAYGAZE(Module):
                 x_visual = self.layer011(torch.cat((x[:, feature_dim//self.num_modality:], self.layer_gaze(gaze), self.layer_spf(c)), dim=1))
             else:
                 x_visual = self.layer011(torch.cat((x[:, feature_dim//self.num_modality:], xH[:, feature_dim//self.num_modality:], self.layer_gaze(gaze), self.layer_spf(torch.cat((c, cH), dim=1))), dim=1))
+        else:
+            x_visual = self.layer011(torch.cat((x[:, feature_dim//self.num_modality:], self.layer_gaze(gaze)), dim=1))
    
 
         if self.num_modality == 1:

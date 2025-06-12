@@ -1,5 +1,5 @@
 exp_name: Test
-model_name: SPELLBYPLAY2FEATS  # SPELLBYPLAY2FEATS, SPELLBYPLAYAUDIOONLY, SPELLVISONLYBYPLAY SPELLBYPLAY SPELLBYPLAYGAZE SPELLBYPLAYLAND
+model_name: SPELLVISONLYBYPLAY  # SPELLVISONLYBYPLAY SPELLBYPLAY SPELLBYPLAYGAZE SPELLBYPLAYLAND, SPELLBYPLAY2FEATS, SPELLBYPLAYAUDIOONLY
 graph_name: RESNET18-TSM-ALL2_csi_30.0_0.9
 loss_name: ce #ce, bce_logit
 use_spf: True
@@ -23,10 +23,13 @@ test_sets: ["test"]
 
 gender: False
 gaze: True
-twoView: False
+twoView: True
 numPredSpeakers: False
 #multiclass: True
 classIndex: 1
 laugh_not_speech: False
 
 csv_path: "/home2/bstephenson/GraVi-T/annotations.csv"
+
+pca: True
+genderClass: True

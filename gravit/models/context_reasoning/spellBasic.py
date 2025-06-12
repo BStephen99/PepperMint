@@ -50,6 +50,7 @@ class SPELL(Module):
         final_dim = cfg['final_dim']
         num_att_heads = cfg['num_att_heads']
         dropout = cfg['dropout']
+        self.twoView = cfg['twoView']
 
         if self.use_spf:
             self.layer_spf = Linear(-1, cfg['proj_dim']) # projection layer for spatial features
@@ -94,8 +95,14 @@ class SPELL(Module):
   
 
         if self.use_spf:
-
-            x_visual = self.layer011(torch.cat((x[:, feature_dim//self.num_modality:], self.layer_spf(c)), dim=1))
+            if self.twoView == False:
+                x_visual = self.layer011(torch.cat((x[:, feature_dim//self.num_modality:], self.layer_spf(c)), dim=1))
+            else:
+                x_visual = self.layer011(torch.cat((
+                            x[:, feature_dim // self.num_modality:], 
+                            xH[:, feature_dim // self.num_modality:], 
+                            self.layer_spf(torch.cat((c, cH), dim=1))
+                        ), dim=1))
 
         else:
             x_visual = self.layer011(x[:, :feature_dim//self.num_modality])
