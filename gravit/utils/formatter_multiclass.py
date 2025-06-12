@@ -64,7 +64,7 @@ def get_formatted_preds(cfg, logits, g, data_dict):
     preds = []
     if 'AVA' in eval_type:
         # Compute scores from the logits
-        if cfg["multiclass"] == False:
+        if cfg["final_dim"] == 1:
             scores_all = torch.sigmoid(logits.detach().cpu()).numpy()
         else:
             probs = torch.softmax(logits.detach().cpu(), dim=1)

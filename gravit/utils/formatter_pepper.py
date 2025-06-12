@@ -41,7 +41,6 @@ def get_formatting_data_dict(cfg):
     if 'AVA' in cfg['eval_type']:
         # Get a list of the feature files
         features = '_'.join(cfg['graph_name'].split('_')[:-3])
-        print("features", features)
         list_data_files = sorted(glob.glob(os.path.join(root_data, f'features/{features}/test/*.pkl')))
      
 
@@ -70,23 +69,7 @@ def get_formatting_data_dict(cfg):
                                                       'landmarks': entity['landmarks_back'],
                                                       'landmarksHigh': entity['landmarks_high'],
                                                       }
-                #if check_row_exists(misMatchDF, video_id, fts):
-
-                """
-                data_dict[fts+4000000] = {'video_id': video_id,
-                                        'frame_timestamp': frame_timestamp,
-                                        'person_box': "0.0,0.0,0.0,0.0",
-                                        'person_id': f'{video_id}:offscreen'}
-
-                maxGlobal += 1
-
-                else:
-                    data_dict[maxGlobal] = {'video_id': video_id,
-                                                      'frame_timestamp': frame_timestamp,
-                                                      'person_box': np.array([0, 0, 0, 0], dtype=np.float32),
-                                                      'person_id': f'{video_id}:offscreen'}
-                    maxGlobal += 1
-                """
+           
     elif 'AS' in cfg['eval_type']:
         # Build a mapping from action ids to action classes
         data_dict['actions'] = {}
@@ -114,43 +97,18 @@ def get_formatted_preds(cfg, logits, g, data_dict):
 
         # Iterate over all the nodes and get the formatted predictions for evaluation
         for scores, global_id in zip(scores_all, g):
-            #if global_id in data_dict:
                 if global_id in data_dict:
                     data = data_dict[global_id]
-                    #print(data["label"])
                 else:
                     continue
-                #print(data)
-                #if data["label"] == [0]:
-                #    continue
                 if "pepper" in data['person_id']:
                     continue
-                #if data["label"] == 0:
-                #    continue
-          
-
-                #print(data["label"])
-                #print(scores.item())
-                #print("")
 
                
-
-                #if data["landmarks"] == '0' and data["person_box"]=='0,0,0,0':
-                    #print(data['person_id'])
-                    #print("no landmarks")
-                    #continue
-                #if data['person_box']=='0,0,0,0':
-                #   continue
                 video_id = data['video_id']
                 frame_timestamp = float(data['frame_timestamp'])
                 x1, y1, x2, y2 = [float(c) for c in data['person_box'].split(',')]
-
-                #criteria =  (addFeat['frame_timestamp'] == frame_timestamp) & (addFeat['entity_id'] == data['person_id'])
-                #filtered_df = addFeat[criteria]
-                #landmarks = filtered_df['landmarks'].values[0]
-                #if landmarks == '0':
-                #    print("zero")
-                #    continue
+     
 
                 if eval_type == 'AVA_ASD':
                     # Line formatted following Challenge #2: http://activity-net.org/challenges/2019/tasks/guest_ava.html

@@ -57,6 +57,19 @@ csv_path: "/home2/bstephenson/GraVi-T/annotations.csv"
 positiveLabels:  ["speaking_to_pepper", "speaking_to_human"] #labels for the positive classes in the csv
 genderClass: False  #use gender predictor model
 
+laugh_not_speech: False  #if True, do not count laughter as speech
+
+
+
+#mode = pepper, wasd, byplay
+
+
+#to train addressee detection model
+python3 tools/train_context_reasoning_multiclass.py --cfg cfg_path
+
+
+python3 tools/evaluate.py --exp_name Test --eval_type AVA_ASD --mode pepper --modelNum None
+
 
 
 

@@ -66,7 +66,7 @@ def compute_average_precision(precision, recall):
   return average_precision
 
 
-def load_csv(filename, column_names):
+def load_csv(filename, column_names, cfg):
   """Loads CSV from the filename using given column names.
   Adds uid column.
   Args:
@@ -81,8 +81,8 @@ def load_csv(filename, column_names):
   df = pd.read_csv(filename, usecols=column_names)
   df = df[~df["entity_id"].str.contains("pepper")]
 
-  df.loc[df['laugh_speaker'] == 1, 'label'] = 'not_speaking'
-  print(df.shape)
+  if cfg["laugh_not_speech"]:
+    df.loc[df['laugh_speaker'] == 1, 'label'] = 'not_speaking'
 
   df = df[df["set"]=="test"]
   print(df.shape)
@@ -90,7 +90,6 @@ def load_csv(filename, column_names):
 
   # Creates a unique id from frame timestamp and entity id.f
   df["uid"] = (df["frame_timestamp"].round(2).map(str) + ":" + df["entity_id"])
-  #print(df["uid"].head(3))
   return df
 
 
@@ -204,13 +203,13 @@ def calculate_precision_recall(df_merged):
   return np.array(df_merged["precision"]), np.array(df_merged["recall"])
 
 
-def run_evaluation_asd(predictions, groundtruth):
+def run_evaluation_asd(predictions, groundtruth, cfg):
   """Runs AVA Active Speaker evaluation, returns average precision result."""
   column_names=[
       "video_id", "frame_timestamp", "entity_box_x1_back", "entity_box_y1_back",
       "entity_box_x2_back", "entity_box_y2_back", "label", "entity_id"
   ]
-  df_groundtruth = load_csv(groundtruth, column_names=column_names+["landmarks_back", "set", "annotations", "laugh_speaker"])
+  df_groundtruth = load_csv(groundtruth, column_names=column_names+["landmarks_back", "set", "annotations", "laugh_speaker"], cfg=cfg)
   df_predictions = pd.DataFrame(predictions, columns=column_names+["score"])
   df_predictions.to_csv("predictions.csv")
   # Creates a unique id from frame timestamp and entity id.
@@ -440,7 +439,7 @@ def get_eval_score(cfg, preds):
     if eval_type == 'AVA_ASD':
         #groundtruth = os.path.join(path_annts, 'ava_activespeaker_val_v1.0.csv')
         groundtruth =  cfg["csv_path"] 
-        score = run_evaluation_asd(preds, groundtruth)
+        score = run_evaluation_asd(preds, groundtruth, cfg)
         str_score = f'{score*100:.2f}%'
     elif eval_type == 'AVA_AL':
         groundtruth = os.path.join(path_annts, 'ava_val_v2.2.csv')

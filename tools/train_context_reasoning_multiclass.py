@@ -82,7 +82,7 @@ def train(cfg):
         # Train for a single epoch
         loss_sum = 0
         for data in train_loader:
-            #print(data)
+
             optimizer.zero_grad()
 
             #train ASD or addressee estimation
@@ -104,7 +104,6 @@ def train(cfg):
                     ps = data.ps.to(device)
                     pers = data.perSpeak.to(device)
                     speakerEmb = data.speakerEmb.to(device)
-                    #gender = data.gender.to(device)
                     
                     if "landmarks" in data:
                         landmarks = data.landmarks.to(device) 
@@ -117,11 +116,12 @@ def train(cfg):
                         landmarksH = data.landmarks_high.to(device)
                     
         
-                    #numPredSpeakers = data.numPredSpeakers.to(device)
                     if cfg["gaze"]:
                         gaze = data.gaze.to(device)
                     if cfg["gender"]:
                         gender = data.gender.to(device)
+                    if cfg["numPredSpeakers"]:
+                        numPredSpeakers = data.numPredSpeakers.to(device)
                 except Exception as e:
                     print(f"An error occurred: {e}")
                     print("********************************************")
@@ -148,8 +148,6 @@ def train(cfg):
             }
 
             logits = model(**kwargs)
-
-
     
         
             loss = loss_func(logits, y.long())

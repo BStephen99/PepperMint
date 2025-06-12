@@ -203,7 +203,6 @@ def val(val_loader, use_spf, model, device, loss_func):
                 pers = data.perSpeak.to(device)
                 speakerEmb = data.speakerEmb.to(device)
                 
-                gender = data.gender.to(device) 
 
                 if cfg["gaze"]:
                     gaze = data.gaze.to(device)
