@@ -55,8 +55,8 @@ class SPELL(Module):
 
         if self.use_spf:
             self.layer_spf = Linear(-1, cfg['proj_dim']) # projection layer for spatial features
-            self.visualNorm = BatchNorm(cfg['proj_dim'])
-            self.audioNorm = BatchNorm(cfg['proj_dim'])
+        self.visualNorm = BatchNorm(cfg['proj_dim'])
+        self.audioNorm = BatchNorm(cfg['proj_dim'])
 
         self.layer011 = Linear(-1, channels[0])
         if self.num_modality == 2:

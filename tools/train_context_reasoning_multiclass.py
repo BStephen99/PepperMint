@@ -46,17 +46,6 @@ def train(cfg):
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     model = build_model(cfg, device)
 
-    """
-    state_dict = torch.load('/home2/bstephenson/GraVi-T/results/SPELL_ASD_byplayGaze/ckpt_best1.pt', map_location=torch.device(device))
-    #state_dict = torch.load('/home2/bstephenson/GraVi-T/results/SPELL_ASD_defaultPepperSpeak4/ckpt_bestlandmarksAndSpeakerEmb.pt', map_location=torch.device(device))
-    model_state_dict = model.state_dict()
-    matched_state_dict = {k: v for k, v in state_dict.items() if k in model_state_dict and v.size() == model_state_dict[k].size()}
-    model_state_dict.update(matched_state_dict)
-    model.load_state_dict(model_state_dict)
-    #model.load_state_dict(state_dict)
-    print("Loaded pretrained weights partially")
-    model.to(device)
-    """
     
 
 
@@ -92,14 +81,16 @@ def train(cfg):
             #data.y[data.y == 3] = 1
             #data.y[data.ps == 1] = 3
             #x, y = data.x.to(device), data.y.to(device) #using
+            if cfg["laugh_not_speech"]:
+                data.y[data.laugh == 1] = 0
             x, y = data.x.to(device), data.y.squeeze(dim=1).to(device)
-            #y = y.long()
 
             edge_index = data.edge_index.to(device)
             edge_attr = data.edge_attr.to(device)
     
 
             c = data.c.to(device)
+
             try:
                 ps = data.ps.to(device)
                 pers = data.perSpeak.to(device)
@@ -126,9 +117,7 @@ def train(cfg):
             except Exception as e:
                 print(f"An error occurred: {e}")
                 print("********************************************")
-                    #ps = torch.tensor([0]*c.shape[0], dtype=torch.float32).unsqueeze(1).to(device)
-                    #pers = torch.tensor([0]*c.shape[0], dtype=torch.float32).unsqueeze(1).to(device)
-                    #numPredSpeakers = None
+          
 
 
             kwargs = {
@@ -195,8 +184,9 @@ def val(val_loader, use_spf, model, device, loss_func):
             #data.y[data.y == 3] = 1
             #data.y[data.ps == 1] = 3
             #x, y = data.x.to(device), data.y.to(device)
+            if cfg["laugh_not_speech"]:
+                data.y[data.laugh == 1] = 0
             x, y = data.x.to(device), data.y.squeeze(dim=1).to(device)
-            #y = y.long()
             edge_index = data.edge_index.to(device)
             edge_attr = data.edge_attr.to(device)
 
@@ -245,8 +235,6 @@ def val(val_loader, use_spf, model, device, loss_func):
 
             logits = model(**kwargs)
 
-            
-            #loss = loss_func(logits.squeeze(), y)
 
             loss = loss_func(logits, y.long())
             loss_sum += loss.item()

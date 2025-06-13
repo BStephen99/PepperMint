@@ -48,17 +48,6 @@ def train(cfg):
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     model = build_model(cfg, device)
 
-    """
-    state_dict = torch.load('/home2/bstephenson/GraVi-T/results/SPELL_ASD_byplayGaze/ckpt_best1.pt', map_location=torch.device(device))
-    #state_dict = torch.load('/home2/bstephenson/GraVi-T/results/SPELL_ASD_defaultPepperSpeak4/ckpt_bestlandmarksAndSpeakerEmb.pt', map_location=torch.device(device))
-    model_state_dict = model.state_dict()
-    matched_state_dict = {k: v for k, v in state_dict.items() if k in model_state_dict and v.size() == model_state_dict[k].size()}
-    model_state_dict.update(matched_state_dict)
-    model.load_state_dict(model_state_dict)
-    #model.load_state_dict(state_dict)
-    print("Loaded pretrained weights partially")
-    model.to(device)
-    """
     
 
 
@@ -93,49 +82,43 @@ def train(cfg):
             #data.y[data.y == 2] = 0
             #x, y = data.x.to(device), data.y.to(device) #using
             x, y = data.x.to(device), data.y.squeeze(dim=1).to(device)
-            #xH = data.xH.to(device)
             #y = y.long()
 
             edge_index = data.edge_index.to(device)
             edge_attr = data.edge_attr.to(device)
-            c = None
-            if cfg['use_spf']:
+       
+       
+
+            try:
                 c = data.c.to(device)
+                ps = data.ps.to(device)
+                pers = data.perSpeak.to(device)
+                speakerEmb = data.speakerEmb.to(device)
 
-                try:
-                    ps = data.ps.to(device)
-                    pers = data.perSpeak.to(device)
-                    speakerEmb = data.speakerEmb.to(device)
+                if cfg["gender"]:
+                    gender = data.gender.to(device)
 
-                    if cfg["gender"]:
-                        gender = data.gender.to(device)
-
-                    if cfg["gaze"]:
-                        gaze = data.gaze.to(device)
-                    
-                    if "landmarks" in data:
-                        landmarks = data.landmarks.to(device) 
-                    else: 
-                        landmarks = data.landmarks_back.to(device)
+                if cfg["gaze"]:
+                    gaze = data.gaze.to(device)
                 
+                if "landmarks" in data:
+                    landmarks = data.landmarks.to(device) 
+                else: 
+                    landmarks = data.landmarks_back.to(device)
+            
 
-                    if cfg["twoView"]:
-                        xH = data.xH.to(device)
-                        cH = data.ch.to(device)
-                        landmarksH = data.landmarks_high.to(device)
-                    
-                    if cfg["numPredSpeakers"]:
-                        numPredSpeakers = data.numPredSpeakers.to(device)
+                if cfg["twoView"]:
+                    xH = data.xH.to(device)
+                    cH = data.ch.to(device)
+                    landmarksH = data.landmarks_high.to(device)
+                
+                if cfg["numPredSpeakers"]:
+                    numPredSpeakers = data.numPredSpeakers.to(device)
 
-                except Exception as e:
-                    print(f"An error occurred: {e}")
-                    print("********************************************")
-                    ps = torch.tensor([0]*c.shape[0], dtype=torch.float32).unsqueeze(1).to(device)
-                    pers = torch.tensor([0]*c.shape[0], dtype=torch.float32).unsqueeze(1).to(device)
-                    #gender = torch.tensor([0]*c.shape[0], dtype=torch.float32).unsqueeze(1).to(device)
-                    #landmarks = torch.tensor([0]*c.shape[0], dtype=torch.float32).unsqueeze(1).to(device)
-                    #landmarksHigh = torch.tensor([0]*cH.shape[0], dtype=torch.float32).unsqueeze(1).to(device)
-                    numPredSpeakers = None
+            except Exception as e:
+                print(f"An error occurred: {e}")
+                print("********************************************")
+           
 
 
 
@@ -206,36 +189,34 @@ def val(val_loader, use_spf, model, device, loss_func):
             #data.y[data.y == 2] = 0
             #x, y = data.x.to(device), data.y.to(device)
             x, y = data.x.to(device), data.y.squeeze(dim=1).to(device)
-            #xH = data.xH.to(device)
             #y = y.long()
             edge_index = data.edge_index.to(device)
             edge_attr = data.edge_attr.to(device)
-            c = None
-            if use_spf:
-                c = data.c.to(device)
-                #cH = data.ch.to(device)
-                ps = data.ps.to(device)
-                pers = data.perSpeak.to(device)
-                speakerEmb = data.speakerEmb.to(device)
+    
+          
+            c = data.c.to(device)
+            ps = data.ps.to(device)
+            pers = data.perSpeak.to(device)
+            speakerEmb = data.speakerEmb.to(device)
 
-                if cfg["gender"]:
-                    gender = data.gender.to(device)
-                if cfg["gaze"]:
-                    gaze = data.gaze.to(device)
-                if "landmarks" in data:
-                        landmarks = data.landmarks.to(device) 
-                else: 
-                        landmarks = data.landmarks_back.to(device)
-
-
-                if cfg["twoView"]:
-                        xH = data.xH.to(device)
-                        cH = data.ch.to(device)
-                        landmarksH = data.landmarks_high.to(device)
+            if cfg["gender"]:
+                gender = data.gender.to(device)
+            if cfg["gaze"]:
+                gaze = data.gaze.to(device)
+            if "landmarks" in data:
+                    landmarks = data.landmarks.to(device) 
+            else: 
+                    landmarks = data.landmarks_back.to(device)
 
 
-                if cfg["numPredSpeakers"]:
-                        numPredSpeakers = data.numPredSpeakers.to(device)
+            if cfg["twoView"]:
+                    xH = data.xH.to(device)
+                    cH = data.ch.to(device)
+                    landmarksH = data.landmarks_high.to(device)
+
+
+            if cfg["numPredSpeakers"]:
+                    numPredSpeakers = data.numPredSpeakers.to(device)
                 
                
 
