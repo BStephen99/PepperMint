@@ -63,6 +63,8 @@ laugh_not_speech: False  #if True, do not count laughter as speech
 
 #mode = pepper, wasd, byplay
 
+ SPELLBYPLAY, SPELLBYPLAYGAZE, SPELLBYPLAYLAND, SPELLBYPLAY2FEATS, SPELLBYPLAYAUDIOONLY, SPELLVISONLYBYPLAY
+
 
 #to train addressee detection model
 python3 tools/train_context_reasoning_multiclass.py --cfg cfg_path

@@ -84,40 +84,36 @@ def evaluate(cfg):
     preds_all = []
     with torch.no_grad():
         for i, data in enumerate(val_loader, 1):
-            #print(data)
             g = data.g.tolist()
             x = data.x.to(device)
             edge_index = data.edge_index.to(device)
             edge_attr = data.edge_attr.to(device)
-            c = None
-            if cfg['use_spf']:
-                try:
-                    c = data.c.to(device)
-                    ps = data.ps.to(device)
-                    pers = data.perSpeak.to(device)
-                    speakerEmb = data.speakerEmb.to(device)
-                    if cfg["gender"]:
-                        gender = data.gender.to(device)
-                    if "landmarks" in data:
-                        landmarks = data.landmarks.to(device) 
-                    elif "landmarks_back" in data: 
-                        landmarks = data.landmarks_back.to(device)
-                    if cfg["twoView"]:
-                        xH = data.xH.to(device)
-                        cH = data.ch.to(device)
-                        landmarksH = data.landmarks_high.to(device)
-                    if cfg["numPredSpeakers"]:
-                        numPredSpeakers = data.numPredSpeakers.to(device)
-                    if cfg["gaze"]:
-                        gaze = data.gaze.to(device)
-                except:
-                    print("except")
-                    c = data.c.to(device)
-                    ps = torch.tensor([0]*c.shape[0], dtype=torch.float32).unsqueeze(1).to(device)
-                    pers = torch.tensor([0]*c.shape[0], dtype=torch.float32).unsqueeze(1).to(device)
-                    gaze=None
-                    landmarks=None
-                    numPredSpeakers = None
+        
+      
+            try:
+                c = data.c.to(device)
+                ps = data.ps.to(device)
+                pers = data.perSpeak.to(device)
+                speakerEmb = data.speakerEmb.to(device)
+                if cfg["gender"]:
+                    gender = data.gender.to(device)
+                if "landmarks" in data:
+                    landmarks = data.landmarks.to(device) 
+                elif "landmarks_back" in data: 
+                    landmarks = data.landmarks_back.to(device)
+                if cfg["twoView"]:
+                    xH = data.xH.to(device)
+                    cH = data.ch.to(device)
+                    landmarksH = data.landmarks_high.to(device)
+                if cfg["numPredSpeakers"]:
+                    numPredSpeakers = data.numPredSpeakers.to(device)
+                if cfg["gaze"]:
+                    gaze = data.gaze.to(device)
+            except Exception as e:
+                print(f"An error occurred: {e}")
+                print("********************************************")
+                
+
 
             kwargs = {
                 "x": x,

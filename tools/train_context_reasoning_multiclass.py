@@ -97,37 +97,38 @@ def train(cfg):
 
             edge_index = data.edge_index.to(device)
             edge_attr = data.edge_attr.to(device)
-            c = None
-            if cfg['use_spf']:
-                c = data.c.to(device)
-                try:
-                    ps = data.ps.to(device)
-                    pers = data.perSpeak.to(device)
-                    speakerEmb = data.speakerEmb.to(device)
+    
+
+            c = data.c.to(device)
+            try:
+                ps = data.ps.to(device)
+                pers = data.perSpeak.to(device)
+                speakerEmb = data.speakerEmb.to(device)
                     
-                    if "landmarks" in data:
+                if "landmarks" in data:
                         landmarks = data.landmarks.to(device) 
-                    else: 
+                else: 
                         landmarks = data.landmarks_back.to(device)
                     
-                    if cfg["twoView"]:
+                if cfg["twoView"]:
                         xH = data.xH.to(device)
                         cH = data.ch.to(device)
                         landmarksH = data.landmarks_high.to(device)
                     
         
-                    if cfg["gaze"]:
+                if cfg["gaze"]:
                         gaze = data.gaze.to(device)
-                    if cfg["gender"]:
+                if cfg["gender"]:
                         gender = data.gender.to(device)
-                    if cfg["numPredSpeakers"]:
+                if cfg["numPredSpeakers"]:
                         numPredSpeakers = data.numPredSpeakers.to(device)
-                except Exception as e:
-                    print(f"An error occurred: {e}")
-                    print("********************************************")
-                    ps = torch.tensor([0]*c.shape[0], dtype=torch.float32).unsqueeze(1).to(device)
-                    pers = torch.tensor([0]*c.shape[0], dtype=torch.float32).unsqueeze(1).to(device)
-                    numPredSpeakers = None
+
+            except Exception as e:
+                print(f"An error occurred: {e}")
+                print("********************************************")
+                    #ps = torch.tensor([0]*c.shape[0], dtype=torch.float32).unsqueeze(1).to(device)
+                    #pers = torch.tensor([0]*c.shape[0], dtype=torch.float32).unsqueeze(1).to(device)
+                    #numPredSpeakers = None
 
 
             kwargs = {
@@ -198,29 +199,30 @@ def val(val_loader, use_spf, model, device, loss_func):
             #y = y.long()
             edge_index = data.edge_index.to(device)
             edge_attr = data.edge_attr.to(device)
-            c = None
-            if use_spf:
-                c = data.c.to(device)
-                ps = data.ps.to(device)
-                pers = data.perSpeak.to(device)
-                speakerEmb = data.speakerEmb.to(device)
+
+          
+
+            c = data.c.to(device)
+            ps = data.ps.to(device)
+            pers = data.perSpeak.to(device)
+            speakerEmb = data.speakerEmb.to(device)
                 
            
-                if "landmarks" in data:
+            if "landmarks" in data:
                         landmarks = data.landmarks.to(device) 
-                else: 
+            else: 
                         landmarks = data.landmarks_back.to(device)
 
-                if cfg["twoView"]:
+            if cfg["twoView"]:
                         xH = data.xH.to(device)
                         cH = data.ch.to(device)
                         landmarksH = data.landmarks_high.to(device)
 
-                if cfg["gaze"]:
+            if cfg["gaze"]:
                         gaze = data.gaze.to(device)
-                if cfg["gender"]:
+            if cfg["gender"]:
                         gender = data.gender.to(device)
-                if cfg["numPredSpeakers"]:
+            if cfg["numPredSpeakers"]:
                         numPredSpeakers = data.numPredSpeakers.to(device)
                 
      

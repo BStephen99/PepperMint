@@ -54,13 +54,14 @@ class SPELLBYPLAY(Module):
 
         if self.use_spf:
             self.layer_spf = Linear(-1, cfg['proj_dim']) # projection layer for spatial features
-            self.layer_gaze = Linear(-1, cfg['proj_dim'])
-            self.layer_pose = Linear(-1, cfg['proj_dim'])
-            self.layer_speakerEmb = Linear(-1, 10)
-            self.layer_gender = Embedding(3, 5)
-            self.speakerNorm = BatchNorm(20)
-            self.visualNorm = BatchNorm(cfg['proj_dim'])
-            self.audioNorm = BatchNorm(cfg['proj_dim'])
+            
+        self.layer_gaze = Linear(-1, cfg['proj_dim'])
+        self.layer_pose = Linear(-1, cfg['proj_dim'])
+        self.layer_speakerEmb = Linear(-1, 10)
+        self.layer_gender = Embedding(3, 5)
+        self.speakerNorm = BatchNorm(20)
+        self.visualNorm = BatchNorm(cfg['proj_dim'])
+        self.audioNorm = BatchNorm(cfg['proj_dim'])
 
         self.layer011 = Linear(-1, channels[0])
         if self.num_modality == 2:
@@ -113,7 +114,7 @@ class SPELLBYPLAY(Module):
             
       
         else:
-            x_visual = self.layer011(torch.cat((x[:, feature_dim//self.num_modality:], self.layer_spf(c)), dim=1))
+            x_visual = self.layer011(x[:, feature_dim//self.num_modality:])
 
         if self.num_modality == 1:
             x = x_visual

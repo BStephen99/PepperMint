@@ -1,8 +1,8 @@
 exp_name: Test
-model_name: SPELLVISONLYBYPLAY  # SPELLVISONLYBYPLAY SPELLBYPLAY SPELLBYPLAYGAZE SPELLBYPLAYLAND, SPELLBYPLAY2FEATS, SPELLBYPLAYAUDIOONLY
+model_name:  
 graph_name: RESNET18-TSM-ALL2_csi_30.0_0.9
 loss_name: ce #ce, bce_logit
-use_spf: True
+use_spf: False
 use_ref: False
 num_modality: 2
 channel1: 64
@@ -23,9 +23,8 @@ test_sets: ["test"]
 
 gender: False
 gaze: True
-twoView: True
+twoView: False
 numPredSpeakers: False
-#multiclass: True
 classIndex: 1
 laugh_not_speech: False
 
