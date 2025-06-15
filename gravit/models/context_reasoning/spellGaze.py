@@ -48,13 +48,13 @@ class SPELLGAZE(Module):
         final_dim = cfg['final_dim']
         num_att_heads = cfg['num_att_heads']
         dropout = cfg['dropout']
+        self.twoView = cfg['twoView']
 
         if self.use_spf:
             self.layer_spf = Linear(-1, cfg['proj_dim']) # projection layer for spatial features
-            self.layer_gaze = Linear(-1, cfg['proj_dim'])
-            self.layer_pose = Linear(-1, cfg['proj_dim'])
-            self.visualNorm = BatchNorm(cfg['proj_dim'])
-            self.audioNorm = BatchNorm(cfg['proj_dim'])
+        self.layer_gaze = Linear(-1, cfg['proj_dim'])
+        self.visualNorm = BatchNorm(cfg['proj_dim'])
+        self.audioNorm = BatchNorm(cfg['proj_dim'])
 
         self.layer011 = Linear(-1, channels[0])
         if self.num_modality == 2:
@@ -88,7 +88,6 @@ class SPELLGAZE(Module):
             self.layer_ref3 = Refinement(final_dim)
 
 
-    #def forward(self, x, edge_index, edge_attr, c=None):
     def forward(self, x, edge_index, edge_attr, xH=None, c=None, cH=None, ps=None, pers=None, gender=None, gaze=None, landmarks=None, landmarksH=None, dinoEmb=None,speakerEmb=None, numPredSpeakers=None):
         feature_dim = x.shape[1]
 
@@ -96,11 +95,18 @@ class SPELLGAZE(Module):
 
 
         if self.use_spf:
-
-            x_visual = self.layer011(torch.cat((x[:, feature_dim//self.num_modality:], self.layer_gaze(gaze), self.layer_spf(c)), dim=1))
+            if self.twoView == False:
+                x_visual = self.layer011(torch.cat((x[:, feature_dim//self.num_modality:], self.layer_gaze(gaze), self.layer_spf(c)), dim=1))
+            else:
+                x_visual = self.layer011(torch.cat((
+                            x[:, feature_dim // self.num_modality:], 
+                            xH[:, feature_dim // self.num_modality:], 
+                            self.layer_gaze(gaze), 
+                            self.layer_spf(torch.cat((c, cH), dim=1))
+                        ), dim=1))
   
         else:
-            x_visual = self.layer011(x[:, :feature_dim//self.num_modality])
+            x_visual = self.layer011(torch.cat((x[:, feature_dim//self.num_modality:], self.layer_gaze(gaze)), dim=1))
 
         if self.num_modality == 1:
             x = x_visual

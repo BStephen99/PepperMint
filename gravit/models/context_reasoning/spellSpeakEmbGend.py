@@ -4,6 +4,7 @@ from torch_geometric.nn import Linear, EdgeConv, GATv2Conv, SAGEConv, BatchNorm
 from torch.nn import Embedding
 import torch.nn as nn
 import torch.nn.functional as F
+import joblib
 
 
 class GenderClassifier(nn.Module):
@@ -26,6 +27,12 @@ genClass.load_state_dict(torch.load('gender_model.pt'))
 genClass.eval()
 genClass.to("cuda")
 
+
+ipca = joblib.load("./data/pca_model.pkl")
+
+def processSpeakerEmb(value):
+    new_transformed_data = ipca.transform(value.cpu())
+    return torch.tensor(new_transformed_data).to("cuda").float()
 
 
 
@@ -73,18 +80,19 @@ class SPELLSPEAKEMB(Module):
         dropout = cfg['dropout']
         self.genderClass = cfg["genderClass"]
         self.twoView = cfg['twoView']
+        self.pca = cfg['pca']
 
         if self.use_spf:
             self.layer_spf = Linear(-1, cfg['proj_dim']) # projection layer for spatial features
-            self.layer_pose = Linear(-1, cfg['proj_dim'])
-            self.layer_speakerEmb = Linear(-1, 10)
-            self.layer_gender = Embedding(3, 5)
-            if cfg["pca"] == True:
-                self.speakerNorm = BatchNorm(20)
-            else:
-                self.speakerNorm = BatchNorm(192)
-            self.visualNorm = BatchNorm(cfg['proj_dim'])
-            self.audioNorm = BatchNorm(cfg['proj_dim'])
+        self.layer_pose = Linear(-1, cfg['proj_dim'])
+        self.layer_speakerEmb = Linear(-1, 10)
+        self.layer_gender = Embedding(3, 5)
+        if cfg["pca"] == True:
+            self.speakerNorm = BatchNorm(20)
+        else:
+            self.speakerNorm = BatchNorm(192)
+        self.visualNorm = BatchNorm(cfg['proj_dim'])
+        self.audioNorm = BatchNorm(cfg['proj_dim'])
 
         self.layer011 = Linear(-1, channels[0])
         if self.num_modality == 2:
@@ -122,6 +130,10 @@ class SPELLSPEAKEMB(Module):
     def forward(self, x, edge_index, edge_attr, xH=None, c=None, cH=None, ps=None, pers=None, gender=None, gaze=None, landmarks=None, landmarksH=None, dinoEmb=None,speakerEmb=None, numPredSpeakers=None):
         feature_dim = x.shape[1]
 
+        if self.pca == True:
+            speakerEmb = processSpeakerEmb(speakerEmb)
+
+
         gender = self.layer_gender(gender.long()).squeeze(1)
 
         if self.use_spf:
@@ -135,7 +147,7 @@ class SPELLSPEAKEMB(Module):
                         ), dim=1))
     
         else:
-            x_visual = self.layer011(x[:, :feature_dim//self.num_modality])
+            x_visual = self.layer011(x[:, feature_dim//self.num_modality:])
 
         if self.num_modality == 1:
             x = x_visual
@@ -143,7 +155,6 @@ class SPELLSPEAKEMB(Module):
 
     
             if self.genderClass == True:
-                #The 
                 x_audio = self.layer012(torch.cat((x[:, :feature_dim//self.num_modality], F.softmax(genClass(speakerEmb), dim=1), ps,  gender), dim=1))
             else:
                 x_audio = self.layer012(torch.cat((x[:, :feature_dim//self.num_modality], self.speakerNorm(speakerEmb), ps,  gender), dim=1))

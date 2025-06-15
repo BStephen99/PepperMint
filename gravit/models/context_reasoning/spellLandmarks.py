@@ -42,22 +42,27 @@ class SPELLLAND(Module):
     def __init__(self, cfg):
         super(SPELLLAND, self).__init__()
         self.use_spf = cfg['use_spf'] # whether to use the spatial features
-        self.twoViews = cfg["useTwoViews"]
         self.use_ref = cfg['use_ref']
         self.num_modality = cfg['num_modality']
         channels = [cfg['channel1'], cfg['channel2']]
         final_dim = cfg['final_dim']
         num_att_heads = cfg['num_att_heads']
         dropout = cfg['dropout']
+        self.twoView = cfg['twoView']
 
         if self.use_spf:
             self.layer_spf = Linear(-1, cfg['proj_dim']) # projection layer for spatial features
-            self.layer_pose = Linear(-1, cfg['proj_dim'])
-            self.layer_speakerEmb = Linear(-1, 10)
-            self.layer_gender = Embedding(3, 5)
-            self.speakerNorm = BatchNorm(20)
-            self.visualNorm = BatchNorm(cfg['proj_dim'])
-            self.audioNorm = BatchNorm(cfg['proj_dim'])
+        self.layer_pose = Linear(-1, cfg['proj_dim'])
+        self.layer_speakerEmb = Linear(-1, 10)
+        self.layer_gender = Embedding(3, 5)
+        self.speakerNorm = BatchNorm(20)
+        self.visualNorm = BatchNorm(cfg['proj_dim'])
+        self.audioNorm = BatchNorm(cfg['proj_dim'])
+        self.fusion_layer = nn.TransformerEncoder(
+            nn.TransformerEncoderLayer(d_model=128, nhead=4),
+            num_layers=1
+        )
+        self.proj = nn.Linear(128, 64)
 
         self.layer011 = Linear(-1, channels[0])
         if self.num_modality == 2:
@@ -96,20 +101,23 @@ class SPELLLAND(Module):
 
 
         if self.use_spf:
-            if self.twoViews == "Back":
+            if self.twoView == False:
                 x_visual = self.layer011(torch.cat((x[:, feature_dim//self.num_modality:], landmarks, self.layer_spf(c)), dim=1))
-            elif self.twoViews == "High":
-                x_visual = self.layer011(torch.cat((xH[:, feature_dim//self.num_modality:], landmarksH, self.layer_spf(cH)), dim=1))
-            elif self.twoViews == "Both":
+                
+            else:
+                #x_visual = self.layer011(torch.cat((xH[:, feature_dim//self.num_modality:], landmarksH, self.layer_spf(cH)), dim=1))
+              
+                
                 x_visual = self.layer011(torch.cat((
                             x[:, feature_dim // self.num_modality:], 
                             xH[:, feature_dim // self.num_modality:], 
                             self.layer_pose(torch.cat((landmarks, landmarksH), dim=1)), 
                             self.layer_spf(torch.cat((c, cH), dim=1))
                         ), dim=1))
+                      
             
         else:
-            x_visual = self.layer011(x[:, :feature_dim//self.num_modality])
+            x_visual = self.layer011(torch.cat((x[:, feature_dim//self.num_modality:], landmarks), dim=1))
 
         if self.num_modality == 1:
             x = x_visual

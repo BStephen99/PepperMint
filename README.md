@@ -73,6 +73,9 @@ python3 tools/train_context_reasoning_multiclass.py --cfg cfg_path
 python3 tools/evaluate.py --exp_name Test --eval_type AVA_ASD --mode pepper --modelNum None
 
 
+python3 data/generate_spatial-temporal_graphs_peppermint.py --features RESNET18-TSM-ALL2 --ec_mode csi --time_span 30 --tau 0.9
+
+
 
 
 
