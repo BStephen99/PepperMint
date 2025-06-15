@@ -263,7 +263,6 @@ if __name__ == "__main__":
     parser.add_argument('--ec_mode',       type=str,   help='Edge connection mode (csi | cdi)', required=True)
     parser.add_argument('--time_span',     type=float, help='Maximum time span for each graph in seconds', required=True)
     parser.add_argument('--tau',           type=float, help='Maximum time difference between neighboring nodes in seconds', required=True)
-    parser.add_argument('--pca',           type=bool, default=True, help='Perform pca on speaker embeddings', required=False)
 
     args = parser.parse_args()
 

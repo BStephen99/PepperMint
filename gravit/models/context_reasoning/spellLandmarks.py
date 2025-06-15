@@ -111,7 +111,8 @@ class SPELLLAND(Module):
                 x_visual = self.layer011(torch.cat((
                             x[:, feature_dim // self.num_modality:], 
                             xH[:, feature_dim // self.num_modality:], 
-                            self.layer_pose(torch.cat((landmarks, landmarksH), dim=1)), 
+                            landmarks, 
+                            landmarksH, 
                             self.layer_spf(torch.cat((c, cH), dim=1))
                         ), dim=1))
                       

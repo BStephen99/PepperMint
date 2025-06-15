@@ -12,7 +12,7 @@ import ast
 import joblib
 
 
-ipca = joblib.load("./data/pca_model.pkl")
+
 
 
 import warnings
@@ -47,9 +47,7 @@ def processBody(values):
         return value
 
 
-def processSpeakerEmb(value):
-    new_transformed_data = ipca.transform(value.reshape(1, -1))
-    return new_transformed_data.squeeze(0)
+
 
 
 
@@ -220,13 +218,9 @@ def generate_graph(data_file, args, path_graphs, sp):
                             landmarks_high.append(processLandmarks(entity['landmarks_high']))
                         elif 'landmarks' in entity:
                             landmarks_back.append(processLandmarks(entity['landmarks']))
-
-                        
+                       
          
-                        if args.pca == True: 
-                            speakerEmb.append(processSpeakerEmb(entity['speakerEmb']))
-                        else:
-                            speakerEmb.append(entity['speakerEmb'])
+                        speakerEmb.append(entity['speakerEmb'])
         
 
                 # Get a list of the edge information: these are for edge_index and edge_attr

@@ -134,17 +134,11 @@ def generate_graph(data_file, args, path_graphs, sp):
         speakerEmb = []
         for fts in twd:
             for entity in data[f'{fts}']:
-                #print(fts)
-                #print(entity['feature'].shape)
                 timestamp.append(fts)
-                #print(entity['person_id'])
-
-                #print(entity['label'] == 1)
+     
                 if "pepper" in entity['person_id'] and entity['label'] == 1:
-                    #feature.append(np.append(entity['feature'],1))
                     pepperSpeaking.append(np.array([1]))
                     personSpeaking.append(np.array([1]))
-                    #print("pepper speaking")
                 elif entity['label'] == 1 or entity['label'] == 2:
                     pepperSpeaking.append(np.array([0]))
                     personSpeaking.append(np.array([1]))
@@ -164,32 +158,6 @@ def generate_graph(data_file, args, path_graphs, sp):
                 except:
                     print("no speaker emb")
 
-            """
-            if check_row_exists(misMatchDF, video_id, fts):
-                timestamp.append(fts)
-                pepperSpeaking.append(np.array([0]))
-                personSpeaking.append(np.array([1]))
-                feature.append(modify_vector(data, fts))
-                coord.append(np.array([0, 0, 0, 0], dtype=np.float32))
-                label.append(np.array([1]))
-                person_id.append(f'{video_id}:offscreen')
-                #global_id.append(maxGlobal)
-                global_id.append(fts+4000000)
-                #maxGlobal += 1
-                speakerEmb.append(data[f'{fts}'][0]['speakerEmb'])
-            else:
-                timestamp.append(fts)
-                pepperSpeaking.append(np.array([0]))
-                personSpeaking.append(np.array([0]))
-                feature.append(modify_vector(data, fts))
-                coord.append(np.array([0, 0, 0, 0], dtype=np.float32))
-                label.append(np.array([0]))
-                person_id.append(f'{video_id}:offscreen')
-                #global_id.append(maxGlobal)
-                global_id.append(fts+4000000)
-                #maxGlobal += 1
-                speakerEmb.append(data[f'{fts}'][0]['speakerEmb'])
-            """
 
 
         # Get a list of the edge information: these are for edge_index and edge_attr
