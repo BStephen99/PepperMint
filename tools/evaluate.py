@@ -13,16 +13,20 @@ from gravit.utils.vs import avg_splits
 from gravit.utils import eval_byplay as byplay
 from gravit.utils import eval_tool as pepper
 from gravit.utils import eval_WASD as wasd
+from gravit.utils import eval_AVA as ava
 from gravit.utils import formatter_pepper
 from gravit.utils import formatter_WASD
+from gravit.utils import formatter_AVA
 from gravit.utils import formatter_multiclass
 
 
 def select_eval_tool(mode="pepper"):
-    if mode == "byplay":
+    if mode == "addressee":
         return byplay.get_eval_score, formatter_multiclass.get_formatting_data_dict, formatter_multiclass.get_formatted_preds
     elif mode == "wasd":
         return wasd.get_eval_score, formatter_WASD.get_formatting_data_dict, formatter_WASD.get_formatted_preds
+    elif mode == "ava":
+        return ava.get_eval_score, formatter_AVA.get_formatting_data_dict, formatter_AVA.get_formatted_preds
     elif mode == "pepper":
         return pepper.get_eval_score, formatter_pepper.get_formatting_data_dict, formatter_pepper.get_formatted_preds
     else:
@@ -97,10 +101,11 @@ def evaluate(cfg):
                 speakerEmb = data.speakerEmb.to(device)
                 if cfg["gender"]:
                     gender = data.gender.to(device)
-                if "landmarks" in data:
-                    landmarks = data.landmarks.to(device) 
-                elif "landmarks_back" in data: 
-                    landmarks = data.landmarks_back.to(device)
+                if cfg["landmarks"]:
+                    if "landmarks" in data:
+                        landmarks = data.landmarks.to(device) 
+                    elif "landmarks_back" in data: 
+                        landmarks = data.landmarks_back.to(device)
                 if cfg["twoView"]:
                     xH = data.xH.to(device)
                     cH = data.ch.to(device)
@@ -122,7 +127,7 @@ def evaluate(cfg):
                 "c": c,
                 "ps": ps,
                 "pers": pers,
-                "landmarks": landmarks,
+                "landmarks": landmarks if cfg["landmarks"] else None,
                 "speakerEmb": speakerEmb,
                 "gender": gender if cfg["gender"] else None,
                 "gaze": gaze if cfg["gaze"] else None,

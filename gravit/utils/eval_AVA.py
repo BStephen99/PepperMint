@@ -82,6 +82,11 @@ def load_csv(filename, column_names):
   df = pd.read_csv(filename, usecols=column_names)
   df = df[~df["entity_id"].str.contains("pepper")]
 
+  #removeVid = ["JNb4nWexD0I", "053oq2xB3oU", "xJmRNZVDDCY", "qrkff49p4E4", "yn9WN9lsHRE", "LgBQlW6OTr0", "z-fsLpGHq6o", "IzvOYVMltkI", "rJKeqfTlAeY", "2qQs3Y9OJX0",
+  #"a5mEmM6w_ks", "P60OxWahxBQ"]
+  
+  df = df[~df["video_id"].isin(removeVid)]
+
   # Creates a unique id from frame timestamp and entity id.f
   df["uid"] = (df["frame_timestamp"].round(2).map(str) + ":" + df["entity_id"])
   return df
@@ -423,7 +428,7 @@ def get_eval_score(cfg, preds):
     eval_type = cfg['eval_type']
     str_score = ""
     if eval_type == 'AVA_ASD':
-        groundtruth = cfg["wasd_path"]
+        groundtruth = cfg["ava_path"]
         score = run_evaluation_asd(preds, groundtruth, cfg["positiveLabels"])
         str_score = f'{score*100:.2f}%'
     elif eval_type == 'AVA_AL':

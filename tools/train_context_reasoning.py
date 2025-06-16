@@ -101,10 +101,11 @@ def train(cfg):
                 if cfg["gaze"]:
                     gaze = data.gaze.to(device)
                 
-                if "landmarks" in data:
-                    landmarks = data.landmarks.to(device) 
-                else: 
-                    landmarks = data.landmarks_back.to(device)
+                if cfg["landmarks"]:
+                    if "landmarks" in data:
+                        landmarks = data.landmarks.to(device) 
+                    else: 
+                        landmarks = data.landmarks_back.to(device)
             
 
                 if cfg["twoView"]:
@@ -130,7 +131,7 @@ def train(cfg):
                 "c": c,
                 "ps": ps,
                 "pers": pers,
-                "landmarks": landmarks,
+                "landmarks": landmarks if cfg["landmarks"] else None,
                 "speakerEmb": speakerEmb,
                 "gender": gender if cfg["gender"] else None,
                 "gaze": gaze if cfg["gaze"] else None,
@@ -203,10 +204,11 @@ def val(val_loader, use_spf, model, device, loss_func):
                 gender = data.gender.to(device)
             if cfg["gaze"]:
                 gaze = data.gaze.to(device)
-            if "landmarks" in data:
-                    landmarks = data.landmarks.to(device) 
-            else: 
-                    landmarks = data.landmarks_back.to(device)
+            if cfg["landmarks"]:
+                if "landmarks" in data:
+                        landmarks = data.landmarks.to(device) 
+                elif "landmarks_back" in data: 
+                        landmarks = data.landmarks_back.to(device)
 
 
             if cfg["twoView"]:
@@ -228,7 +230,7 @@ def val(val_loader, use_spf, model, device, loss_func):
                 "c": c,
                 "ps": ps,
                 "pers": pers,
-                "landmarks": landmarks,
+                "landmarks": landmarks if cfg["landmarks"] else None,
                 "speakerEmb": speakerEmb,
                 "gender": gender if cfg["gender"] else None,
                 "gaze": gaze if cfg["gaze"] else None,

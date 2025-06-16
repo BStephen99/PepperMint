@@ -3,10 +3,32 @@ import glob
 import torch
 import pickle  #nosec
 import pandas as pd
+import numpy as np
 
-addFeat = pd.read_csv("/home2/bstephenson/GraVi-T/avaAllaugmented.csv")
-addFeat['frame_timestamp'] = addFeat['frame_timestamp'].astype(float)
-addFeat.set_index(['video_id', 'frame_timestamp', 'entity_id'], inplace=True)
+
+
+def check_row_exists(df, video_id, timestamp):
+    # Filter the DataFrame based on video_id and timestamp
+    matching_row = df[(df['video_id'] == video_id) & (df['timestamp'] == timestamp)]
+
+    # Check if any matching row exists
+    if not matching_row.empty:
+        return True
+    else:
+        return False
+
+def get_highest_global_id(global_dict):
+    max_global_id = -1  # Initialize with a value lower than any expected global_id
+
+    # Iterate through each key and its associated value list in the dictionary
+    for value_list in global_dict.values():
+        for item in value_list:
+            # Check if the 'global_id' exists and update max_global_id if a higher value is found
+            if 'global_id' in item:
+                max_global_id = max(max_global_id, item['global_id'])
+
+    return max_global_id
+
 
 def get_formatting_data_dict(cfg):
     """
@@ -15,43 +37,48 @@ def get_formatting_data_dict(cfg):
 
     root_data = cfg['root_data']
     dataset = cfg['dataset']
+    test_sets = cfg['test_sets']
     data_dict = {}
 
     if 'AVA' in cfg['eval_type']:
         # Get a list of the feature files
         features = '_'.join(cfg['graph_name'].split('_')[:-3])
-        list_data_files = sorted(glob.glob(os.path.join(root_data, f'features/{features}/val/*.pkl')))
-        #list_data_files = sorted(glob.glob("/home2/bstephenson/GraVi-T/data/features/RESNET18-TSM-AUG4/val/*.pkl"))
-        #print("list", list_data_files)
-        #list_data_files = sorted(glob.glob("/home2/bstephenson/GraVi-T/data/features/RESNET18-TSM-AUG4/ours/220927*.pkl"))
-        #list_data_files = sorted(glob.glob(os.path.join(root_data, f'features/{features}/ours/220927*.pkl')))
+        print("features", features)
+      
+        list_data_files = []
 
-        for data_file in list_data_files[:]:
+        for t in test_sets:
+            print(os.path.join(root_data, "features", features, t, '*.pkl'))
+            list_data_files += glob.glob(os.path.join(root_data, "features", features, t, '*.pkl'))
+        list_data_files = sorted(list_data_files)
+  
+
+        for data_file in list_data_files:
             video_id = os.path.splitext(os.path.basename(data_file))[0]
 
-            print(data_file)
             with open(data_file, 'rb') as f:
                 data = pickle.load(f) #nosec
 
+  
+
             # Get a list of frame_timestamps
             list_fts = sorted([float(frame_timestamp) for frame_timestamp in data.keys()])
-            #print(list_fts)
 
             # Iterate over all the frame_timestamps and retrieve the required data for evaluation
             for fts in list_fts:
                 #frame_timestamp = f'{fts:g}'
                 frame_timestamp = f'{fts}'
                 for entity in data[frame_timestamp]:
-                    #print("gi",entity['global_id'])
-                    key = (video_id, float(frame_timestamp), entity['person_id'])
-                    filtered_df = addFeat.loc[key]
-                    #print(filtered_df)
+  
                     data_dict[entity['global_id']] = {'video_id': video_id,
                                                       'frame_timestamp': frame_timestamp,
                                                       'person_box': entity['person_box'],
                                                       'person_id': entity['person_id'],
-                                                      'landmarks': filtered_df['landmarks'],
-                                                      'num_speakers': filtered_df['num_predicted_speakers']}
+                                                      'label': entity['label']}
+                                                      #'landmarks': entity['landmarks']}
+            
+
+              
     elif 'AS' in cfg['eval_type']:
         # Build a mapping from action ids to action classes
         data_dict['actions'] = {}
@@ -76,32 +103,34 @@ def get_formatted_preds(cfg, logits, g, data_dict):
     if 'AVA' in eval_type:
         # Compute scores from the logits
         scores_all = torch.sigmoid(logits.detach().cpu()).numpy()
-        #scores_all = torch.sigmoid(logits[:,1].detach().cpu()).numpy()
+    
 
-        #print("keys", data_dict.keys())
         # Iterate over all the nodes and get the formatted predictions for evaluation
         for scores, global_id in zip(scores_all, g):
-            #print(global_id)
-            data = data_dict[global_id]
-            if "pepper" in data['person_id']:
-                continue
-            video_id = data['video_id']
-            frame_timestamp = float(data['frame_timestamp'])
-            x1, y1, x2, y2 = [float(c) for c in data['person_box'].split(',')]
+            #if global_id in data_dict:
+                if global_id in data_dict:
+                    data = data_dict[global_id]
+                else:
+                    continue
+          
+            
+                video_id = data['video_id']
+                frame_timestamp = float(data['frame_timestamp'])
+                x1, y1, x2, y2 = [float(c) for c in data['person_box'].split(',')]
 
-            if eval_type == 'AVA_ASD':
-                # Line formatted following Challenge #2: http://activity-net.org/challenges/2019/tasks/guest_ava.html
-                person_id = data['person_id']
-                score = scores.item()
-                pred = [video_id, frame_timestamp, x1, y1, x2, y2, 'SPEAKING_AUDIBLE', person_id, score, data["landmarks"], data["num_speakers"]]
-                #print(pred)
-                preds.append(pred)
 
-            elif eval_type == 'AVA_AL':
-                # Line formatted following Challenge #1: http://activity-net.org/challenges/2019/tasks/guest_ava.html
-                for action_id, score in enumerate(scores, 1):
-                    pred = [video_id, frame_timestamp, x1, y1, x2, y2, action_id, score]
+                if eval_type == 'AVA_ASD':
+                    # Line formatted following Challenge #2: http://activity-net.org/challenges/2019/tasks/guest_ava.html
+                    person_id = data['person_id']
+                    score = scores.item()
+                    pred = [video_id, frame_timestamp, x1, y1, x2, y2, 'SPEAKING_AUDIBLE', person_id, score]
                     preds.append(pred)
+
+                elif eval_type == 'AVA_AL':
+                    # Line formatted following Challenge #1: http://activity-net.org/challenges/2019/tasks/guest_ava.html
+                    for action_id, score in enumerate(scores, 1):
+                        pred = [video_id, frame_timestamp, x1, y1, x2, y2, action_id, score]
+                        preds.append(pred)
     elif 'AS' in eval_type:
         tmp = logits
         if cfg['use_ref']:

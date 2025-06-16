@@ -190,11 +190,9 @@ def generate_graph(data_file, args, path_graphs, sp):
                             landmarks.append(processLandmarks(entity['landmarks']))
                         elif "landmarks_back" in entity:
                             landmarks.append(processLandmarks(entity['landmarks_back']))
-                        if args.pca == True: 
-                            speakerEmb.append(processSpeakerEmb(entity['speakerEmb']))
-                        else:
-                            speakerEmb.append(entity['speakerEmb'])
-        
+                        
+                        speakerEmb.append(entity['speakerEmb'])
+                #zf28ypviiB8_225-255_0000_0060:3
 
                 # Get a list of the edge information: these are for edge_index and edge_attr
                 node_source = []
@@ -272,8 +270,9 @@ if __name__ == "__main__":
     print ('This process might take a few minutes')
     #for sp in ['ours']:
     #for sp in ["AVAtrain", "WASDtrain", 'train', 'test']:
+    for sp in ["WASDval"]:
     #for sp in ["WASDtrain", 'train', 'test']:
-    for sp in ['train', 'test']:
+    #for sp in ['train', 'test']:
     #for sp in ["AVAtrain", "WASDtrain"]:
     #for sp in ["WASDtrainLaugh", "WASDvalLaugh", "train", "test"]:
         path_graphs = os.path.join(args.root_data, f'graphs/{args.features}_{args.ec_mode}_{args.time_span}_{args.tau}/{sp}')

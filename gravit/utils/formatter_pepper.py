@@ -50,8 +50,6 @@ def get_formatting_data_dict(cfg):
             with open(data_file, 'rb') as f:
                 data = pickle.load(f) #nosec
 
-            #maxGlobal = get_highest_global_id(data)
-            #print("maxGlobal",maxGlobal)
 
             # Get a list of frame_timestamps
             list_fts = sorted([float(frame_timestamp) for frame_timestamp in data.keys()])
