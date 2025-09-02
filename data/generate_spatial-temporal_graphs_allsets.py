@@ -277,6 +277,7 @@ if __name__ == "__main__":
     parser.add_argument('--tau',           type=float, help='Maximum time difference between neighboring nodes in seconds', required=True)
     parser.add_argument('--pca',           type=bool, default=False, help='Perform pca on speaker embeddings', required=False)
     parser.add_argument('--gender',        type=bool, default=False, help='Include gender', required=False)
+    parser.add_argument('--datasets',      type=str, default="AVAtrain,WASDtrain,train,test", help='Dataset list')
 
     args = parser.parse_args()
 
@@ -284,13 +285,8 @@ if __name__ == "__main__":
  
 
     print ('This process might take a few minutes')
-    #for sp in ['val']:
-    #for sp in ['ours']:
-    #for sp in ["AVAtrain", "WASDtrain", 'train', 'test']:
-    #for sp in ["WASDtrain", 'train', 'test']:
-    for sp in ['train', 'test']:
-    #for sp in ['test']:
-    #for sp in ["AVAtrain", "WASDtrain"]:
+    datasets = args.datasets.split(',')
+    for sp in datasets:
     #for sp in ["WASDtrainLaugh", "WASDvalLaugh", "train", "test"]:
         path_graphs = os.path.join(args.root_data, f'graphs/{args.features}_{args.ec_mode}_{args.time_span}_{args.tau}/{sp}')
         os.makedirs(path_graphs, exist_ok=True)
