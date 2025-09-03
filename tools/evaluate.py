@@ -44,6 +44,8 @@ def evaluate(cfg):
     path_graphs = os.path.join(cfg['root_data'], f'graphs/{cfg["graph_name"]}')
     path_result = os.path.join(cfg['root_result'], f'{cfg["exp_name"]}')
     test_sets = cfg["test_sets"]
+    if cfg["mode"] == "wasd":
+        test_sets = ["WASDval"]
 
     if cfg['split'] is not None:
         path_graphs = os.path.join(path_graphs, f'split{cfg["split"]}')
@@ -195,6 +197,8 @@ if __name__ == "__main__":
     for result in results:
         args.cfg = result
         cfg = get_cfg(args)
+        cfg["mode"] = args.mode
+        print(cfg)
         all_eval_results.append(evaluate(cfg))
 
     if "VS" in args.eval_type and args.all_splits:

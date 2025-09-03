@@ -85,7 +85,7 @@ def load_csv(filename, column_names):
   #removeVid = ["JNb4nWexD0I", "053oq2xB3oU", "xJmRNZVDDCY", "qrkff49p4E4", "yn9WN9lsHRE", "LgBQlW6OTr0", "z-fsLpGHq6o", "IzvOYVMltkI", "rJKeqfTlAeY", "2qQs3Y9OJX0",
   #"a5mEmM6w_ks", "P60OxWahxBQ"]
   
-  df = df[~df["video_id"].isin(removeVid)]
+  #df = df[~df["video_id"].isin(removeVid)]
 
   # Creates a unique id from frame timestamp and entity id.f
   df["uid"] = (df["frame_timestamp"].round(2).map(str) + ":" + df["entity_id"])
@@ -118,6 +118,8 @@ def merge_groundtruth_and_predictions(df_groundtruth, df_predictions):
   print(missing_in_predictions.head(5))
   missing_in_groundtruth = df_predictions[~df_predictions['uid'].isin(df_groundtruth['uid'])]
   print(missing_in_groundtruth.head(5))
+
+  print(missing_in_predictions["video_id"].unique())
 
 
 
@@ -157,24 +159,24 @@ def merge_groundtruth_and_predictions(df_groundtruth, df_predictions):
   return df_merged
 
 
-def get_all_positives(df_merged, positiveLabels):
+def get_all_positives(df_merged, positiveLabelsAVA):
   """Counts all positive examples in the groundtruth dataset."""
 
   positiveCount = 0
-  for lab in positiveLabels:
+  for lab in positiveLabelsAVA:
     positiveCount += df_merged[df_merged["label_groundtruth"] == lab]["uid"].count()
   return positiveCount
 
 
 
-def calculate_precision_recall(df_merged, positiveLabels):
+def calculate_precision_recall(df_merged, positiveLabelsAVA):
   """Calculates precision and recall arrays going through df_merged row-wise."""
-  all_positives = get_all_positives(df_merged, positiveLabels)
+  all_positives = get_all_positives(df_merged, positiveLabelsAVA)
 
   # Populates each row with 1 if this row is a true positive
   # (at its score level).
   df_merged["is_tp"] = np.where(
-  (df_merged["label_groundtruth"].isin(positiveLabels)) &
+  (df_merged["label_groundtruth"].isin(positiveLabelsAVA)) &
   (df_merged["label_prediction"] == "SPEAKING_AUDIBLE"), 1, 0)
 
 
@@ -188,13 +190,18 @@ def calculate_precision_recall(df_merged, positiveLabels):
   # Calculates recall for every row counting true positives up to
   # and including that row over all positives in the groundtruth dataset.
   df_merged["recall"] = df_merged["tp"] / all_positives
-  print("saving results")
-  df_merged.to_csv("/home2/bstephenson/GraVi-T/results/results_feature.csv")
+
+  path = "./results/results_features_AVA.csv"
+  full_path = os.path.abspath(path)
+
+  print(f"Saving results to {full_path}")
+  df_merged.to_csv("./results/results_features_AVA.csv")
 
   return np.array(df_merged["precision"]), np.array(df_merged["recall"])
 
 
-def run_evaluation_asd(predictions, groundtruth, positiveLabels):
+
+def run_evaluation_asd(predictions, groundtruth, positiveLabelsAVA):
   """Runs AVA Active Speaker evaluation, returns average precision result."""
   column_names=[
       "video_id", "frame_timestamp", "entity_box_x1", "entity_box_y1",
@@ -204,10 +211,19 @@ def run_evaluation_asd(predictions, groundtruth, positiveLabels):
   df_groundtruth = load_csv(groundtruth, column_names=column_names)
   df_predictions = pd.DataFrame(predictions, columns=column_names+["score"])
   # Creates a unique id from frame timestamp and entity id.
-  df_predictions["uid"] = (df_predictions["frame_timestamp"].round(2).map(str) + ":" + df_predictions["entity_id"])
+
+  df_predictions["frame_timestamp"] = pd.to_numeric(df_predictions["frame_timestamp"], errors="coerce")
+  #df_predictions["uid"] = (df_predictions["frame_timestamp"].round(2).map(str) + ":" + df_predictions["entity_id"])
+  df_predictions["uid"] = (
+    df_predictions["frame_timestamp"].round(2).astype(str)
+    + ":" +
+    df_predictions["entity_id"].astype(str)
+)
+
+
 
   df_merged = merge_groundtruth_and_predictions(df_groundtruth, df_predictions)
-  precision, recall = calculate_precision_recall(df_merged, positiveLabels)
+  precision, recall = calculate_precision_recall(df_merged, positiveLabelsAVA)
 
   return compute_average_precision(precision, recall)
 
@@ -429,7 +445,7 @@ def get_eval_score(cfg, preds):
     str_score = ""
     if eval_type == 'AVA_ASD':
         groundtruth = cfg["ava_path"]
-        score = run_evaluation_asd(preds, groundtruth, cfg["positiveLabels"])
+        score = run_evaluation_asd(preds, groundtruth, cfg["positiveLabelsAVA"])
         str_score = f'{score*100:.2f}%'
     elif eval_type == 'AVA_AL':
         groundtruth = os.path.join(path_annts, 'ava_val_v2.2.csv')

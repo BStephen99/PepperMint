@@ -48,7 +48,6 @@ def train(cfg):
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     model = build_model(cfg, device)
 
-    
 
 
     train_loader = DataLoader(GraphDataset(path_graphs, training_sets=training_sets), batch_size=cfg['batch_size'], shuffle=True)

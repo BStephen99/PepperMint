@@ -1,7 +1,6 @@
 
 ## Credit
 
-Push
 
 This repository is largely based on the original **SPELL** model and codebase for active speaker detection developed by Min et al., available at [https://github.com/IntelLabs/GraVi-T](https://github.com/IntelLabs/GraVi-T).
 
@@ -75,7 +74,7 @@ python3 tools/train_context_reasoning_multiclass.py --cfg cfg_path
 python3 tools/evaluate.py --exp_name Test --eval_type AVA_ASD --mode pepper --modelNum None
 
 
-python3 data/generate_spatial-temporal_graphs_peppermint.py --features RESNET18-TSM-ALL2 --ec_mode csi --time_span 30 --tau 0.9
+python3 data/generate_spatial-temporal_graphs_peppermint.py --features RESNET18-TSM-ALL --ec_mode csi --time_span 30 --tau 0.9
 
 
 
@@ -97,8 +96,8 @@ Alternatively, you can manually install PyYAML, pandas, and [PyG](https://www.py
 ## Installation
 After confirming the above requirements, run the following commands:
 ```
-git clone https://github.com/IntelLabs/GraVi-T.git
-cd GraVi-T
+git clone https://github.com/BStephen99/PepperMint.git
+cd PepperMint
 pip3 install -e .
 ```
 
@@ -118,7 +117,7 @@ python data/annotations/merge_ava_activespeaker.py
 ```
 
 ### Features
-Download `RESNET18-TSM-AUG.zip` from the Google Drive link from [SPELL](https://github.com/SRA2/SPELL#code-usage) and unzip under `data/features`.
+Download `RESNET18-TSM-ALL.zip` from https://repository.ortolang.fr/api/content/peppermint/head/ and unzip under `data/features`.
 > We use the features from the thirdparty repositories.
 
 ### Directory Structure
@@ -128,9 +127,12 @@ The data directories should look as follows:
     |-- annotations
         |-- ava_activespeaker_val_v1.0.csv
     |-- features
-        |-- RESNET18-TSM-AUG
+        |-- RESNET18-TSM-ALL
+            |-- AVAtrain
+            |-- test
             |-- train
-            |-- val
+            |-- WASDtrain
+            |-- WASDval
 ```
 
 ### Experiments
@@ -139,9 +141,9 @@ We can perform the experiments on active speaker detection with the default conf
 #### Step 1: Graph Generation
 Run the following command to generate spatial-temporal graphs from the features:
 ```
-python data/generate_spatial-temporal_graphs.py --features RESNET18-TSM-AUG --ec_mode csi --time_span 90 --tau 0.9
+python data/generate_spatial-temporal_graphs.py --features RESNET18-TSM-ALL --ec_mode csi --time_span 30 --tau 0.9
 ```
-The generated graphs will be saved under `data/graphs`. Each graph captures long temporal context information in a video, which spans about 90 seconds (specified by `--time_span`).
+The generated graphs will be saved under `data/graphs`. Each graph captures long temporal context information in a video, which spans 30 seconds (specified by `--time_span`).
 
 #### Step 2: Training
 Next, run the training script by passing the default configuration file:
@@ -153,7 +155,17 @@ The results and logs will be saved under `results`.
 #### Step 3: Evaluation
 Now, we can evaluate the trained model's performance:
 ```
-python tools/evaluate.py --exp_name SPELL_ASD_default --eval_type AVA_ASD
+
+python tools/evaluate.py --exp_name basicNoLaugh --eval_type AVA_ASD --mode pepper
+
+python tools/evaluate.py --exp_name <EXP_NAME> --eval_type AVA_ASD --mode <MODE>
+
+The possible modes are:
+-'pepper'    (evaluate ASD on Peppermint Role test set)
+-'wasd'      (evaluate ASD on the WASD test set)  
+-'ava'       (evaluate ASD on the AVA val set)
+-'addressee' (evaluate Addressee estimation on the Peppermint Role test set)
+
 ```
 
 

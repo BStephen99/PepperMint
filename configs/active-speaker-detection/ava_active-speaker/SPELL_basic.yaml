@@ -1,6 +1,6 @@
 exp_name: basicNoLaugh
 model_name: SPELL
-graph_name: RESNET18-TSM-ALL2_csi_30.0_0.9
+graph_name: RESNET18-TSM-ALL_csi_30.0_0.9
 loss_name: bce_logit
 use_spf: True
 use_ref: False
@@ -13,15 +13,18 @@ num_att_heads: 0
 dropout: 0.3
 lr: 0.0005
 wd: 0
-batch_size: 16
+batch_size: 4 #16
 sch_param: 10
 num_epoch: 70
 training_sets: ["train"]
 test_sets: ["test"]
-csv_path: "/home2/bstephenson/GraVi-T/annotations.csv"
+csv_path: "/home/brooke/Downloads/annotations.csv"
 multiclass: False
 positiveLabels: ["speaking_to_pepper", "speaking_to_human"]
 gender: False
 gaze: False
 numPredSpeakers: False
 twoView: False
+laugh_not_speech: False
+landmarks: False
+

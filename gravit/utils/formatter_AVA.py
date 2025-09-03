@@ -37,7 +37,7 @@ def get_formatting_data_dict(cfg):
 
     root_data = cfg['root_data']
     dataset = cfg['dataset']
-    test_sets = cfg['test_sets']
+    test_sets = cfg['ava_test_set']
     data_dict = {}
 
     if 'AVA' in cfg['eval_type']:

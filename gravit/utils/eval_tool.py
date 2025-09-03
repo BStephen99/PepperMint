@@ -116,7 +116,7 @@ def merge_groundtruth_and_predictions(df_groundtruth, df_predictions):
   print("unique", df_groundtruth['uid'].unique().shape)
   print("unique", df_predictions['uid'].unique().shape)
   duplicate_uids = df_predictions['uid'][df_predictions['uid'].duplicated(keep=False)]
-  print(duplicate_uids)
+  print("duplicate",duplicate_uids)
   #print(df_predictions[(df_predictions["entity_id"]=="220926_CLIP_08:person1") & (df_predictions["frame_timestamp"]==0.43)] )
   #print("preduid",df_predictions['uid'])
   #non_unique_uids = df_predictions['uid'][df_predictions['uid'].duplicated()]
@@ -127,6 +127,7 @@ def merge_groundtruth_and_predictions(df_groundtruth, df_predictions):
   missing_in_groundtruth = df_predictions[~df_predictions['uid'].isin(df_groundtruth['uid'])]
   #print("missing_in_groundtruth", missing_in_groundtruth.shape)
   print(missing_in_groundtruth.head(5))
+  print(missing_in_groundtruth["video_id"].unique())
 
 
 
@@ -197,8 +198,11 @@ def calculate_precision_recall(df_merged):
   # Calculates recall for every row counting true positives up to
   # and including that row over all positives in the groundtruth dataset.
   df_merged["recall"] = df_merged["tp"] / all_positives
-  print("saving results")
-  df_merged.to_csv("/home2/bstephenson/GraVi-T/results/results_feature.csv")
+  path = "./results/results_feature.csv"
+  full_path = os.path.abspath(path)
+
+  print(f"Saving results to {full_path}")
+  df_merged.to_csv("./results/results_feature.csv")
 
   return np.array(df_merged["precision"]), np.array(df_merged["recall"])
 
@@ -209,7 +213,8 @@ def run_evaluation_asd(predictions, groundtruth, cfg):
       "video_id", "frame_timestamp", "entity_box_x1_back", "entity_box_y1_back",
       "entity_box_x2_back", "entity_box_y2_back", "label", "entity_id"
   ]
-  df_groundtruth = load_csv(groundtruth, column_names=column_names+["landmarks_back", "set", "annotations", "laugh_speaker"], cfg=cfg)
+  #df_groundtruth = load_csv(groundtruth, column_names=column_names+["landmarks_back", "set", "annotations", "laugh_speaker"], cfg=cfg)
+  df_groundtruth = load_csv(groundtruth, column_names=column_names+["landmarks_back", "set", "annotations"], cfg=cfg)
   df_predictions = pd.DataFrame(predictions, columns=column_names+["score"])
   df_predictions.to_csv("predictions.csv")
   # Creates a unique id from frame timestamp and entity id.

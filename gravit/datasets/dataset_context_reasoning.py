@@ -20,6 +20,7 @@ class GraphDataset(Dataset):
                 print(os.path.join(path_graphs, t, '*.pt'))
                 self.all_graphs += glob.glob(os.path.join(path_graphs, t, '*.pt'))
             self.all_graphs = sorted(self.all_graphs)
+            print("There are {} graphs in the training set.".format(len(self.all_graphs)))
   
         elif test_sets:
             self.all_graphs = []
@@ -28,6 +29,7 @@ class GraphDataset(Dataset):
                 print(os.path.join(path_graphs, t, '*.pt'))
                 self.all_graphs += glob.glob(os.path.join(path_graphs, t, '*.pt'))
             self.all_graphs = sorted(self.all_graphs)
+            print("There are {} graphs in the test set.".format(len(self.all_graphs)))
 
  
 
@@ -36,6 +38,6 @@ class GraphDataset(Dataset):
 
     def get(self, idx):
             #print(self.all_graphs[idx])
-            data = torch.load(self.all_graphs[idx])
+            data = torch.load(self.all_graphs[idx], weights_only=False)
             return data
 
