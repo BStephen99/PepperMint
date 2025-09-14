@@ -82,10 +82,6 @@ def load_csv(filename, column_names):
   df = pd.read_csv(filename, usecols=column_names)
   df = df[~df["entity_id"].str.contains("pepper")]
 
-  #removeVid = ["JNb4nWexD0I", "053oq2xB3oU", "xJmRNZVDDCY", "qrkff49p4E4", "yn9WN9lsHRE", "LgBQlW6OTr0", "z-fsLpGHq6o", "IzvOYVMltkI", "rJKeqfTlAeY", "2qQs3Y9OJX0",
-  #"a5mEmM6w_ks", "P60OxWahxBQ"]
-  
-  #df = df[~df["video_id"].isin(removeVid)]
 
   # Creates a unique id from frame timestamp and entity id.f
   df["uid"] = (df["frame_timestamp"].round(2).map(str) + ":" + df["entity_id"])
@@ -114,9 +110,12 @@ def merge_groundtruth_and_predictions(df_groundtruth, df_predictions):
   print("prediction", df_predictions["uid"].count())
   print("unique", df_predictions['uid'].unique().shape)
 
+
   missing_in_predictions = df_groundtruth[~df_groundtruth['uid'].isin(df_predictions['uid'])]
+  print("missing_in_predictions")
   print(missing_in_predictions.head(5))
   missing_in_groundtruth = df_predictions[~df_predictions['uid'].isin(df_groundtruth['uid'])]
+  print("missing in groundtruth")
   print(missing_in_groundtruth.head(5))
 
   print(missing_in_predictions["video_id"].unique())
@@ -195,7 +194,7 @@ def calculate_precision_recall(df_merged, positiveLabelsAVA):
   full_path = os.path.abspath(path)
 
   print(f"Saving results to {full_path}")
-  df_merged.to_csv("./results/results_features_AVA.csv")
+  df_merged.to_csv("./results/results_features_AVA.csv", index=False)
 
   return np.array(df_merged["precision"]), np.array(df_merged["recall"])
 

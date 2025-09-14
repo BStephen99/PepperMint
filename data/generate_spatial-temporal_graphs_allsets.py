@@ -277,7 +277,7 @@ if __name__ == "__main__":
     parser.add_argument('--tau',           type=float, help='Maximum time difference between neighboring nodes in seconds', required=True)
     parser.add_argument('--pca',           type=bool, default=False, help='Perform pca on speaker embeddings', required=False)
     parser.add_argument('--gender',        type=bool, default=False, help='Include gender', required=False)
-    parser.add_argument('--datasets',      type=str, default="AVAtrain,WASDtrain,WASDval,train,test", help='Dataset list (Comma separated string)')
+    parser.add_argument('--datasets',      type=str, default="AVAtrain,AVAval,WASDtrain,WASDval,train,test", help='Dataset list (Comma separated string)')
 
     args = parser.parse_args()
 

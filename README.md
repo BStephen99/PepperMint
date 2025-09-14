@@ -1,131 +1,49 @@
+# PepperMint Role – SPELL Model
 
 ## Credit
-
-
-This repository is largely based on the original **SPELL** model and codebase for active speaker detection developed by Min et al., available at [https://github.com/IntelLabs/GraVi-T](https://github.com/IntelLabs/GraVi-T).
+This repository builds on the original **SPELL** model and codebase for active speaker detection developed by Min et al., available at [IntelLabs/GraVi-T](https://github.com/IntelLabs/GraVi-T).
 
 Minor modifications have been made to adapt the code for specific use cases.
 
-If you use this code or build upon it, please consider citing the original paper:
+If you use this code or build upon it, please cite the original paper:
 
+```
 @inproceedings{min2022learning,
-title={Learning Long-Term Spatial-Temporal Graphs for Active Speaker Detection},
-author={Min, Kyle and Roy, Sourya and Tripathi, Subarna and Guha, Tanaya and Majumdar, Somdeb},
-booktitle={European Conference on Computer Vision},
-pages={371--387},
-year={2022},
-organization={Springer}
+  title={Learning Long-Term Spatial-Temporal Graphs for Active Speaker Detection},
+  author={Min, Kyle and Roy, Sourya and Tripathi, Subarna and Guha, Tanaya and Majumdar, Somdeb},
+  booktitle={European Conference on Computer Vision},
+  pages={371--387},
+  year={2022},
+  organization={Springer}
 }
-
-
-
-
-
-
-
-exp_name: byplayGaze2views
-model_name: SPELLBYPLAYGAZE   
-graph_name: RESNET18-TSM-ALL2_csi_30.0_0.9
-loss_name: ce  , bce_logit
-use_spf: True
-use_ref: False
-num_modality: 2
-channel1: 64
-channel2: 16
-
-proj_dim: 64
-final_dim: 4
-num_att_heads: 0
-dropout: 0.3
-lr: 0.0005
-wd: 0
-batch_size: 16
-sch_param: 10
-num_epoch: 70
-
-training_sets: ["train"]
-test_sets: ["test"]
-
-gender: False
-gaze: True
-twoView: True
-numPredSpeakers: False
-multiclass: True
-classIndex: 1  # multiclass model
-
-csv_path: "/home2/bstephenson/GraVi-T/annotations.csv"
-
-positiveLabels:  ["speaking_to_pepper", "speaking_to_human"] #labels for the positive classes in the csv
-genderClass: False  #use gender predictor model
-
-laugh_not_speech: False  #if True, do not count laughter as speech
-
-
-
-#mode = pepper, wasd, byplay
-
- SPELLBYPLAY, SPELLBYPLAYGAZE, SPELLBYPLAYLAND, SPELLBYPLAY2FEATS, SPELLBYPLAYAUDIOONLY, SPELLVISONLYBYPLAY
-
-
-#to train addressee detection model
-python3 tools/train_context_reasoning_multiclass.py --cfg cfg_path
-
-
-python3 tools/evaluate.py --exp_name Test --eval_type AVA_ASD --mode pepper --modelNum None
-
-
-python3 data/generate_spatial-temporal_graphs_peppermint.py --features RESNET18-TSM-ALL --ec_mode csi --time_span 30 --tau 0.9
-
-
-
-
-
-
-## Requirements
-Preliminary requirements:
-- Python>=3.7
-- CUDA 11.6
-
-Run the following command if you have CUDA 11.6:
-```
-pip3 install -r requirements.txt
 ```
 
-Alternatively, you can manually install PyYAML, pandas, and [PyG](https://www.pyg.org)>=2.0.3 with CUDA>=11.1
+---
 
-## Installation
-After confirming the above requirements, run the following commands:
-```
-git clone https://github.com/BStephen99/PepperMint.git
-cd PepperMint
-pip3 install -e .
-```
+## Feature Extraction
 
-## Getting Started (Active Speaker Detection)
-### Annotations
-1) Download the annotations of AVA-ActiveSpeaker from the official site:
-```
-DATA_DIR="data/annotations"
+This repository contains code for training the graph neural network for the SPELL model. Training requires **visual and audio embeddings**.
 
-wget https://research.google.com/ava/download/ava_activespeaker_val_v1.0.tar.bz2 -P ${DATA_DIR}
-tar -xf ${DATA_DIR}/ava_activespeaker_val_v1.0.tar.bz2 -C ${DATA_DIR}
-```
+### Option 1: Extract your own features
+Visit the repository [active_speaker_encoder](https://github.com/BStephen99/active_speaker_encoder) and follow the instructions.
 
-2) Preprocess the annotations:
-```
-python data/annotations/merge_ava_activespeaker.py
-```
+If you have trained your own encoder, you can build feature dictionaries using:
 
-### Features
-Download `RESNET18-TSM-ALL.zip` from https://repository.ortolang.fr/api/content/peppermint/head/ and unzip under `data/features`.
-> We use the features from the thirdparty repositories.
+- `getFeatureDictionaryPepperMint.py`
+- `getFeatureDictionaryAVA.py`
+- `getFeatureDictionaryWASD.py`
 
-### Directory Structure
-The data directories should look as follows:
+### Option 2: Use preprocessed features
+Download preprocessed feature dictionaries (from the ALL model) at [Ortolang: PepperMint](https://www.ortolang.fr/workspaces/peppermint?section=content&root=head&path=%2F).  
+Unzip `RESNET18-TSM-ALL.zip` under `data/features`.
+
+---
+
+## Directory Structure
+Your data directories should look like this:
+
 ```
 |-- data
-    |-- annotations
-        |-- ava_activespeaker_val_v1.0.csv
     |-- features
         |-- RESNET18-TSM-ALL
             |-- AVAtrain
@@ -135,40 +53,90 @@ The data directories should look as follows:
             |-- WASDval
 ```
 
-### Experiments
-We can perform the experiments on active speaker detection with the default configuration by following the three steps below.
+---
 
-#### Step 1: Graph Generation
-Run the following command to generate spatial-temporal graphs from the features:
-```
-python data/generate_spatial-temporal_graphs.py --features RESNET18-TSM-ALL --ec_mode csi --time_span 30 --tau 0.9
-```
-The generated graphs will be saved under `data/graphs`. Each graph captures long temporal context information in a video, which spans 30 seconds (specified by `--time_span`).
+## Setup
 
-#### Step 2: Training
-Next, run the training script by passing the default configuration file:
+### Requirements
+- Python >= 3.7
+- CUDA 11.6
+
+Install dependencies:
+```bash
+pip3 install -r requirements.txt
 ```
+
+Or manually install:
+- PyYAML  
+- pandas  
+- [PyG](https://www.pyg.org) >= 2.0.3 with CUDA >= 11.1  
+
+### Installation
+```bash
+git clone https://github.com/BStephen99/PepperMint.git
+cd PepperMint
+pip3 install -e .
+```
+
+---
+
+## Training & Evaluation
+
+### Modes
+Available modes:
+- `pepper` – PepperMint Role dataset
+- `wasd` – WASD dataset
+- `ava` – AVA dataset
+- `addressee` – Addressee estimation (PepperMint Role)
+
+Model variants include:
+`SPELLBYPLAY`, `SPELLBYPLAYGAZE`, `SPELLBYPLAYLAND`,  
+`SPELLBYPLAY2FEATS`, `SPELLBYPLAYAUDIOONLY`, `SPELLVISONLYBYPLAY`.
+
+---
+
+### Graph Generation
+Generate spatial-temporal graphs from features:
+
+```bash
+# All datasets
+python data/generate_spatial-temporal_graphs_allsets.py --features RESNET18-TSM-ALL --ec_mode csi --time_span 30 --tau 0.9
+
+# PepperMint Role + WASD (with gender & landmarks)
+python data/generate_spatial-temporal_graphs_landmarks_gender.py --features RESNET18-TSM-ALL --ec_mode csi --time_span 30 --tau 0.9
+
+# PepperMint Role (with addressee annotations)
+python data/generate_spatial-temporal_graphs_peppermint.py --features RESNET18-TSM-ALL --ec_mode csi --time_span 30 --tau 0.9
+```
+
+Graphs are saved in `data/graphs`, with each graph covering 30 seconds (`--time_span`).
+
+---
+
+### Training
+Run training with a config file from `./configs/active-speaker-detection/ava_active-speaker`:
+
+```bash
 python tools/train_context_reasoning.py --cfg configs/active-speaker-detection/ava_active-speaker/SPELL_default.yaml
-```
-The results and logs will be saved under `results`.
 
-#### Step 3: Evaluation
-Now, we can evaluate the trained model's performance:
+# Multiclass / Addressee detection
+python tools/train_context_reasoning_multiclass.py --cfg configs/active-speaker-detection/ava_active-speaker/SPELL_Addressee.yaml
 ```
 
-python tools/evaluate.py --exp_name basicNoLaugh --eval_type AVA_ASD --mode pepper
+Results and logs are stored in `results/`.
 
+---
+
+### Evaluation
+Evaluate trained models:
+
+```bash
 python tools/evaluate.py --exp_name <EXP_NAME> --eval_type AVA_ASD --mode <MODE>
-
-The possible modes are:
--'pepper'    (evaluate ASD on Peppermint Role test set)
--'wasd'      (evaluate ASD on the WASD test set)  
--'ava'       (evaluate ASD on the AVA val set)
--'addressee' (evaluate Addressee estimation on the Peppermint Role test set)
-
 ```
 
-
-
-
-
+Where `<MODE>` can be:
+- `pepper` → ASD on PepperMint Role test set  
+- `wasd` → ASD on WASD test set  
+- `ava` → ASD on AVA val set  
+- `addressee` → Addressee estimation on PepperMint Role test set  
+```

@@ -61,8 +61,12 @@ def evaluate(cfg):
     model = build_model(cfg, device)
     model_keys = set(model.state_dict().keys())
 
-
-    val_loader = DataLoader(GraphDataset(path_graphs, test_sets))
+    if cfg["mode"] == "ava":
+        val_loader = DataLoader(GraphDataset(path_graphs, cfg["ava_test_set"]))
+    elif cfg["mode"] == "wasd":
+        val_loader = DataLoader(GraphDataset(path_graphs, cfg["wasd_test_set"]))
+    else:
+        val_loader = DataLoader(GraphDataset(path_graphs, test_sets))
 
     num_val_graphs = len(val_loader)
     print("num val graphs",num_val_graphs)
@@ -165,7 +169,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--root_data',     type=str,   help='Root directory to the data', default='./data')
     parser.add_argument('--root_result',   type=str,   help='Root directory to output', default='./results')
-    parser.add_argument('--dataset',       type=str,   help='Name of the dataset')
     parser.add_argument('--exp_name',      type=str,   help='Name of the experiment', required=True)
     parser.add_argument('--eval_type',     type=str,   help='Type of the evaluation', required=True)
     parser.add_argument('--split',         type=int,   help='Split to evaluate')

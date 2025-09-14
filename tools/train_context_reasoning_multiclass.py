@@ -75,12 +75,6 @@ def train(cfg):
             optimizer.zero_grad()
 
             #train ASD or addressee estimation
-            #data.y[data.y == 2] = 1 #using
-            #data.y[data.y == 2] = 0
-            #data.y[data.y == 2] = 1
-            #data.y[data.y == 3] = 1
-            #data.y[data.ps == 1] = 3
-            #x, y = data.x.to(device), data.y.to(device) #using
             if cfg["laugh_not_speech"]:
                 data.y[data.laugh == 1] = 0
             x, y = data.x.to(device), data.y.squeeze(dim=1).to(device)

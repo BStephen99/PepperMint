@@ -175,6 +175,7 @@ def generate_graph(data_file, args, path_graphs, sp):
 
         
                         timestamp.append(fts)
+
                     
 
                         if "pepper" in entity['person_id'] and entity['label'] == 1:
@@ -206,6 +207,7 @@ def generate_graph(data_file, args, path_graphs, sp):
                         label.append(entity['label'])
             
                         gaze.append(processGaze(entity['gaze']))
+
                         laugh.append(entity['laugh'])
 
                         person_id.append(entity['person_id'])

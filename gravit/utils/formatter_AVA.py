@@ -36,14 +36,13 @@ def get_formatting_data_dict(cfg):
     """
 
     root_data = cfg['root_data']
-    dataset = cfg['dataset']
     test_sets = cfg['ava_test_set']
     data_dict = {}
 
     if 'AVA' in cfg['eval_type']:
         # Get a list of the feature files
         features = '_'.join(cfg['graph_name'].split('_')[:-3])
-        print("features", features)
+        #print("features", features)
       
         list_data_files = []
 
@@ -69,7 +68,7 @@ def get_formatting_data_dict(cfg):
                 #frame_timestamp = f'{fts:g}'
                 frame_timestamp = f'{fts}'
                 for entity in data[frame_timestamp]:
-  
+
                     data_dict[entity['global_id']] = {'video_id': video_id,
                                                       'frame_timestamp': frame_timestamp,
                                                       'person_box': entity['person_box'],
@@ -111,7 +110,12 @@ def get_formatted_preds(cfg, logits, g, data_dict):
                 if global_id in data_dict:
                     data = data_dict[global_id]
                 else:
+                    print("continue")
                     continue
+
+
+                if global_id == 680936:
+                    print("It is here.")
           
             
                 video_id = data['video_id']

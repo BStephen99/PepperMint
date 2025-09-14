@@ -198,7 +198,7 @@ def calculate_precision_recall(df_merged):
   # and including that row over all positives in the groundtruth dataset.
   df_merged["recall"] = df_merged["tp"] / all_positives
   print("saving results")
-  df_merged.to_csv("/home2/bstephenson/GraVi-T/results/results_feature.csv")
+  df_merged.to_csv("./results/results_feature_addressee.csv", index=False)
 
   return np.array(df_merged["precision"]), np.array(df_merged["recall"])
 

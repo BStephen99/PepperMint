@@ -7,89 +7,6 @@ import subprocess
 import ffmpeg
 import ast
 
-"""
-def draw_bounding_boxes_on_video(df, video_path, output_path):
-    # Load video
-    cap = cv2.VideoCapture(video_path)
-
-    # Get video properties
-    fps = cap.get(cv2.CAP_PROP_FPS)
-    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-
-    # Initialize VideoWriter
-    out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
-
-    # Sort DataFrame by timestamps
-    df_sorted = df.sort_values(by='frame_timestamp_groundtruth')
-
-    # Read timestamps from the sorted DataFrame
-    timestamps = df_sorted['frame_timestamp_groundtruth'].values
-    print(timestamps)
-
-    # Function to find the closest frame index for a given timestamp
-    def find_nearest_frame_index(timestamp):
-        return bisect_left(timestamps, timestamp)
-
-    # Function to map score to color
-    def score_to_color(score):
-        return (0, int(255 * score), 0)  # Blue color intensity based on score
-
-    # Function to map label to color
-    def label_to_color(label):
-        if label == 'not_speaking':
-            return (0, 0, 0)  # Blue color for "not_speaking"
-        else:
-            return (0, 255, 0)  # Orange color for "byplay" or "speaking"
-
-    frame_idx = 0
-    while cap.isOpened():
-        ret, frame = cap.read()
-        if not ret:
-            break
-
-        timestamp = frame_idx / fps
-        nearest_frame_idx = find_nearest_frame_index(timestamp)
-
-        if nearest_frame_idx < len(df_sorted):
-            bboxes = df_sorted[df_sorted['frame_timestamp_groundtruth'] == timestamps[nearest_frame_idx]]
-            for _, bbox_row in bboxes.iterrows():
-                #print(bbox_row)
-                if not pd.isna(bbox_row['entity_box_x1_groundtruth']) and not pd.isna(bbox_row['entity_box_y1_groundtruth']) and not pd.isna(bbox_row['entity_box_x2_groundtruth']) and not pd.isna(bbox_row['entity_box_y2_groundtruth']) and not pd.isna(bbox_row['score']):
-                    #x1 = int(bbox_row['entity_box_x1_groundtruth'] * width)
-                    #y1 = int(bbox_row['entity_box_y1_groundtruth'] * height)
-                    #x2 = int(bbox_row['entity_box_x2_groundtruth'] * width)
-                    #y2 = int(bbox_row['entity_box_y2_groundtruth'] * height)
-
-                    x1 = int(bbox_row['entity_box_x1_groundtruth'])
-                    y1 = int(bbox_row['entity_box_y1_groundtruth'])
-                    x2 = int(bbox_row['entity_box_x2_groundtruth'])
-                    y2 = int(bbox_row['entity_box_y2_groundtruth'])
-                    score = bbox_row['score']
-                    color = score_to_color(score)
-
-                    # Draw first bounding box
-                    cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
-
-                    # Draw second bounding box
-                    label = bbox_row['label_groundtruth']
-                    label_color = label_to_color(label)
-                    x1_second = max(0, int(x1 - (x2 - x1) * 0.1))
-                    y1_second = max(0, int(y1 - (y2 - y1) * 0.1))
-                    x2_second = min(width, int(x2 + (x2 - x1) * 0.1))
-                    y2_second = min(height, int(y2 + (y2 - y1) * 0.1))
-                    cv2.rectangle(frame, (x1_second, y1_second), (x2_second, y2_second), label_color, 2)
-
-        out.write(frame)
-        frame_idx += 1
-        if frame_idx >= total_frames:
-            break
-
-    cap.release()
-    out.release()
-"""
 
 def draw_bounding_boxes_on_video(df, video_path, output_path, landmarks, num_speakers):
     # Load video
@@ -201,11 +118,9 @@ def draw_bounding_boxes_on_video(df, video_path, output_path, landmarks, num_spe
     out.release()
 
 # Example usage:
-#05 no Pepper
-#resultsFile = "/home2/bstephenson/GraVi-T/results/results_OURS_processed_with_ALL.csv"
+
+
 resultsFile = "/home2/bstephenson/GraVi-T/results/results_feature2.csv"
-#df = pd.read_csv("/home2/bstephenson/GraVi-T/results/SPELL_ASD_default/df_merged.csv")
-#df = pd.read_csv("/home2/bstephenson/GraVi-T/results/df_merged.csv")
 df = pd.read_csv(resultsFile)
 print(df.shape)
 clipNum = "34"

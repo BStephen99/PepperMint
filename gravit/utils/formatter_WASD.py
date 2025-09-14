@@ -36,7 +36,7 @@ def get_formatting_data_dict(cfg):
     """
 
     root_data = cfg['root_data']
-    dataset = cfg['dataset']
+    dataset = cfg['wasd_test_set']
     test_sets = cfg['wasd_test_set']
     data_dict = {}
 

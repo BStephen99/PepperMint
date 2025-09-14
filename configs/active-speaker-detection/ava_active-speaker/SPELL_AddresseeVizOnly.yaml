@@ -1,6 +1,6 @@
 exp_name: byplayVisualOnly
 model_name: SPELLVISONLYBYPLAY
-graph_name: RESNET18-TSM-ALL2_csi_30.0_0.9
+graph_name: RESNET18-TSM-ALL_csi_30.0_0.9
 loss_name: ce
 use_spf: true
 use_ref: false
@@ -18,13 +18,14 @@ sch_param: 10
 num_epoch: 90
 root_data: ./data
 root_result: ./results
-
-training_sets: ["train"]
-test_sets: ["test"]
-
-gender: True
-gaze: True
-twoView: False
-numPredSpeakers: False
-
-csv_path: "/home2/bstephenson/GraVi-T/annotations.csv"
+training_sets:
+- train
+test_sets:
+- test
+gender: true
+gaze: true
+twoView: false
+numPredSpeakers: false
+csv_path: /home/brooke/Downloads/annotations.csv
+laugh_not_speech: false
+landmarks: false

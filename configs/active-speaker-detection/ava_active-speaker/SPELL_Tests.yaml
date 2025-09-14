@@ -1,15 +1,14 @@
 exp_name: Test
-model_name:  SPELL
-graph_name: RESNET18-TSM-ALL2_csi_30.0_0.9
-loss_name: bce_logit #ce, bce_logit
-use_spf: True
-use_ref: False
+model_name: SPELL
+graph_name: RESNET18-TSM-ALL_csi_30.0_0.9
+loss_name: bce_logit
+use_spf: true
+use_ref: false
 num_modality: 2
 channel1: 64
 channel2: 16
-
 proj_dim: 64
-final_dim: 1 #1, 3
+final_dim: 1
 num_att_heads: 0
 dropout: 0.3
 lr: 0.0005
@@ -17,22 +16,21 @@ wd: 0
 batch_size: 16
 sch_param: 10
 num_epoch: 70
-
-training_sets: ["train"]
-test_sets: ["AVAval"]
-
-gender: False
-gaze: False
-landmarks: False
-twoView: False
-numPredSpeakers: False
+training_sets:
+- train
+test_sets:
+- AVAval
+gender: false
+gaze: false
+landmarks: false
+twoView: false
+numPredSpeakers: false
 classIndex: 1
-laugh_not_speech: False
-
-csv_path: "/home2/bstephenson/GraVi-T/annotations.csv"
-wasd_path: "/home2/bstephenson/WASD/WASD/csv/val_orig_gender_landmarks_speaker_emb_corrected.csv"
-ava_path: "/home2/bstephenson/ASDNet/ava_activespeaker_val_augmented.csv"
-
-pca: True
-genderClass: False
-positiveLabels: ["SPEAKING_AUDIBLE"]
+laugh_not_speech: false
+csv_path: /home/brooke/Downloads/annotations.csv
+wasd_path: /home2/bstephenson/WASD/WASD/csv/val_orig_gender_landmarks_speaker_emb_corrected.csv
+ava_path: /home2/bstephenson/ASDNet/ava_activespeaker_val_augmented.csv
+pca: true
+genderClass: false
+positiveLabels:
+- SPEAKING_AUDIBLE

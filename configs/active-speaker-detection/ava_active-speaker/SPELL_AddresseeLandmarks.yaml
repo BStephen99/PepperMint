@@ -1,5 +1,5 @@
-exp_name: byplayGaze2views
-model_name: SPELLBYPLAYGAZE
+exp_name: byplayLAND
+model_name: SPELLBYPLAYLAND
 graph_name: RESNET18-TSM-ALL_csi_30.0_0.9
 loss_name: ce
 use_spf: true
@@ -15,17 +15,15 @@ lr: 0.0005
 wd: 0
 batch_size: 16
 sch_param: 10
-num_epoch: 70
+num_epoch: 80
 training_sets:
 - train
 test_sets:
 - test
 gender: false
-gaze: true
-twoView: true
+gaze: false
+twoView: false
 numPredSpeakers: false
-multiclass: true
-classIndex: 1
 csv_path: /home/brooke/Downloads/annotations.csv
 laugh_not_speech: false
 landmarks: false
